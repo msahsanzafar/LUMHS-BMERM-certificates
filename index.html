@@ -3,214 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMHS BME - Management System</title>
+    <title>LUMHS - Certificate Verification Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #1a365d; --gold: #c5a059; --bg: #f8fafc; }
-        body { font-family: 'Lato', sans-serif; background: var(--bg); margin: 0; padding: 0; }
-        
-        /* Sidebar/Header Tabs */
-        .no-print.header-nav { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-tabs { display: flex; gap: 15px; }
-        .nav-tabs button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .nav-tabs button.active { background: var(--gold); color: var(--primary); }
-
-        .container { max-width: 1000px; margin: 30px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* Form Styling */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 16px; }
-        .btn-issue { background: #111; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: 900; margin-top: 20px; cursor: pointer; font-size: 18px; }
-
-        /* Certificate Design */
-        #cert-preview-zone { display: none; margin-top: 40px; }
-        .certificate-container {
-            width: 1050px; height: 740px; background: white; padding: 30px; border: 15px solid var(--primary);
-            margin: 0 auto; box-sizing: border-box; position: relative;
+        :root {
+            --primary: #1a365d;
+            --gold: #c5a059;
+            --bg: #f1f5f9;
         }
-        .inner-border { border: 2px solid var(--gold); height: 100%; width: 100%; padding: 40px; box-sizing: border-box; text-align: center; position: relative; }
-        
-        /* Logo Styling */
-        .logo-box { width: 90px; height: 90px; margin-right: 15px; }
-        .logo-box img { width: 100%; height: auto; object-fit: contain; mix-blend-mode: multiply; }
-        .cert-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; text-align: left; }
-        
-        .student-name { font-size: 48px; font-weight: 900; color: #111; margin: 15px 0; border-bottom: 2px solid var(--gold); display: inline-block; padding: 0 20px; }
-        .sig-section { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 70px; padding: 0 40px; }
-        .sig-line { width: 250px; border-top: 1px solid #111; padding-top: 10px; font-weight: 900; }
 
-        /* Print Settings */
+        body { font-family: 'Lato', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #334155; }
+        
+        /* Admin UI */
+        .admin-container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .header-dashboard { border-bottom: 2px solid var(--bg); margin-bottom: 25px; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Lato', sans-serif; font-size: 16px; width: 100%; box-sizing: border-box; }
+        
+        button.primary-btn { background: #111; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; transition: 0.3s; font-size: 18px; }
+        button.primary-btn:hover { background: #333; transform: translateY(-2px); }
+
+        /* Certificate Styling */
+        #certificate-wrapper { margin-top: 40px; display: none; }
+        
+        .certificate-container {
+            width: 1050px;
+            height: 740px;
+            background: white;
+            padding: 30px;
+            border: 12px solid var(--primary);
+            position: relative;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .inner-border {
+            border: 2px solid var(--gold);
+            height: 100%;
+            width: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Logo SVG Style */
+        .logo-box {
+            background: var(--primary);
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            box-shadow: 0 0 0 2px var(--gold);
+        }
+
+        .cert-header { display: flex; align-items: center; justify-content: center; margin-bottom: 30px; text-align: left; }
+        .uni-text { font-family: 'Lato', sans-serif; font-weight: 900; color: var(--primary); font-size: 26px; text-transform: uppercase; margin: 0; }
+        .dept-text { font-family: 'Lato', sans-serif; font-weight: 700; font-size: 15px; color: #444; margin: 2px 0; }
+
+        .cert-title { font-family: 'Playfair Display', serif; font-size: 52px; color: var(--primary); margin: 20px 0; font-style: italic; }
+        .student-name { font-size: 48px; font-weight: 900; color: #111; margin: 15px 0; border-bottom: 2px solid var(--gold); display: inline-block; padding: 0 20px; }
+        
+        .sig-section { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 70px; padding: 0 40px; }
+        .sig-line { width: 250px; border-top: 1px solid #111; padding-top: 10px; font-weight: 900; color: #111; }
+
+        /* Print Logic */
         @media print {
-            .no-print, .header-nav, .container, button { display: none !important; }
-            #cert-preview-zone { display: block !important; margin: 0; padding: 0; }
-            .certificate-container { border: none; margin: 0; width: 100%; height: 100vh; }
+            .admin-container, button, .no-print { display: none !important; }
+            body { background: white; padding: 0; margin: 0; }
+            #certificate-wrapper { display: block !important; margin: 0; }
+            .certificate-container { border: none; width: 100%; height: 100vh; }
             @page { size: A4 landscape; margin: 0; }
         }
 
-        /* Verify Mode */
+        /* Verify Mode UI */
         .verify-screen { text-align: center; padding: 100px 20px; }
         .verify-card { background: white; max-width: 500px; margin: 0 auto; padding: 40px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 10px solid green; }
     </style>
 </head>
 <body>
 
-<div class="no-print header-nav">
-    <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-weight:900; letter-spacing:1px;">LUMHS - BME PORTAL</span>
+<div class="admin-container" id="main-admin">
+    <div class="header-dashboard">
+        <div>
+            <h2 style="margin:0; color:var(--primary);">Certificate Portal</h2>
+            <small>LUMHS — Repair & Maintenance Division</small>
+        </div>
+        <div id="current-date"></div>
     </div>
-    <div class="nav-tabs">
-        <button onclick="switchTab('dash')" id="btn-dash">Dashboard</button>
-        <button onclick="switchTab('issue')" id="btn-issue" class="active">Issue Certificate</button>
-        <button onclick="switchTab('manage')" id="btn-manage">Manage</button>
-        <button onclick="switchTab('verify')" id="btn-verify">Verify System</button>
-    </div>
-</div>
 
-<div class="container no-print" id="main-admin">
-    <div id="tab-dash" class="tab-content">
-        <h2>System Overview</h2>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
-            <div style="background:#e2e8f0; padding:20px; border-radius:8px;"><h3>Total Issued</h3><h1 id="count-total">0</h1></div>
-            <div style="background:#fef3c7; padding:20px; border-radius:8px;"><h3>Engineer</h3><h1>Engr. Ahsan</h1></div>
-            <div style="background:#d1fae5; padding:20px; border-radius:8px;"><h3>Server Status</h3><h1>Online</h1></div>
+    <div class="form-grid">
+        <div>
+            <label>STUDENT FULL NAME</label>
+            <input type="text" id="name" placeholder="e.g. Engr. Bushra Naz">
+        </div>
+        <div>
+            <label>STUDENT ID</label>
+            <input type="text" id="sid" placeholder="e.g. 19BME">
+        </div>
+        <div>
+            <label>TRAINING TYPE</label>
+            <select id="type">
+                <option value="Technical Training">Technical Training</option>
+                <option value="Internship">Internship</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Short Course">Short Course</option>
+            </select>
+        </div>
+        <div>
+            <label>UNIVERSITY / INSTITUTE</label>
+            <input type="text" id="uni" placeholder="e.g. LUMHS Jamshoro">
+        </div>
+        <div>
+            <label>DURATION</label>
+            <input type="text" id="duration" placeholder="e.g. 6 Months">
+        </div>
+        <div>
+            <label>ISSUE DATE</label>
+            <input type="date" id="idate">
         </div>
     </div>
 
-    <div id="tab-issue" class="tab-content active">
-        <h2>Issue New Certificate</h2>
-        <div class="form-grid">
-            <div><label>STUDENT FULL NAME</label><input type="text" id="name" placeholder="e.g. Engr. Bushra Naz"></div>
-            <div><label>STUDENT ID</label><input type="text" id="sid" placeholder="e.g. 19BME"></div>
-            <div><label>TRAINING TYPE</label>
-                <select id="type">
-                    <option value="Technical Training">Technical Training</option>
-                    <option value="Internship">Internship</option>
-                    <option value="Workshop">Workshop</option>
-                </select>
-            </div>
-            <div><label>UNIVERSITY / INSTITUTE</label><input type="text" id="uni" placeholder="LUMHS Jamshoro"></div>
-            <div><label>DURATION</label><input type="text" id="duration" placeholder="e.g. 6 Months"></div>
-            <div><label>ISSUE DATE</label><input type="date" id="idate"></div>
-        </div>
-        <button class="btn-issue" onclick="generateCert()">Generate Certificate & QR Code →</button>
-    </div>
+    <button class="primary-btn" onclick="generateCertificate()">Generate Certificate & QR Code →</button>
 
-    <div id="tab-manage" class="tab-content">
-        <h2>Manage Certificates</h2>
-        <table width="100%" border="1" style="border-collapse:collapse; margin-top:20px;" id="manage-table">
-            <tr style="background:#eee;"><th>Cert ID</th><th>Name</th><th>Type</th><th>University</th></tr>
-        </table>
-    </div>
-
-    <div id="tab-verify" class="tab-content">
-        <div style="text-align:center; padding:50px;">
-            <h2>Manual Verification</h2>
-            <p>Scan QR Code or enter ID to verify student records.</p>
-            <input type="text" id="v-id-manual" placeholder="Enter ID" style="width:250px;">
-            <button style="padding:10px 20px;">Check</button>
-        </div>
-    </div>
-</div>
-
-<div id="cert-preview-zone">
-    <div class="certificate-container" id="printable-area">
-        <div class="inner-border">
-            <div class="cert-header">
-                <div class="logo-box">
-                    <img src="https://i.ibb.co/pPz77X7/lumhs-logo.png" alt="LUMHS Logo">
+    <div id="certificate-wrapper">
+        <div class="certificate-container" id="printable-area">
+            <div class="inner-border">
+                <div class="cert-header">
+                    <div class="logo-box">
+                        <svg width="75" height="75" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="48" fill="none" stroke="#c5a059" stroke-width="1.5"/>
+                            <circle cx="50" cy="50" r="42" fill="white"/>
+                            <text x="50" y="55" text-anchor="middle" font-size="20" font-weight="900" fill="#1a365d" style="font-family: 'Lato', sans-serif;">LUMHS</text>
+                            <text x="50" y="72" text-anchor="middle" font-size="6" font-weight="bold" fill="#c5a059">EST. 1881</text>
+                            <text x="50" y="35" text-anchor="middle" font-size="6" font-weight="bold" fill="#1a365d">JAMSHORO</text>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="uni-text">Liaquat University of Medical & Health Sciences</h1>
+                        <p class="dept-text">Biomedical Engineering Department • Repair & Maintenance Division</p>
+                        <p class="dept-text" style="font-size:12px;">Jamshoro, Sindh, Pakistan</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 style="font-weight:900; color:var(--primary); margin:0; font-size:24px;">LIAQUAT UNIVERSITY OF MEDICAL & HEALTH SCIENCES</h1>
-                    <p style="margin:2px 0; font-weight:700;">Biomedical Engineering Department • Repair & Maintenance Division</p>
-                    <p style="margin:2px 0; font-size:12px; color:#555;">Jamshoro, Sindh, Pakistan</p>
+
+                <p style="letter-spacing: 4px; color: #64748b; font-weight:700;">CERTIFICATE OF ACHIEVEMENT</p>
+                <h2 class="cert-title" id="display-title">Certificate of Internship</h2>
+                <p style="font-size: 18px;">This is to certify that</p>
+                <div class="student-name" id="display-name">STUDENT NAME</div>
+                
+                <p style="font-size: 18px; margin-top: 20px;">
+                    Student ID: <b id="display-sid">00BME</b> • <b id="display-uni">UNIVERSITY NAME</b>
+                </p>
+                <p style="font-size: 18px; max-width: 80%; margin: 20px auto;">
+                    has successfully completed <b id="display-type">Technical Training</b> of <b id="display-duration">Duration</b> 
+                    at the Biomedical Engineering Department, Repair & Maintenance Division.
+                </p>
+
+                <div class="sig-section">
+                    <div class="sig-box">
+                        <div class="sig-line">Supervisor</div>
+                        <small>R&M Division, BME Dept</small>
+                    </div>
+                    
+                    <div id="qrcode-box"></div>
+                    
+                    <div class="sig-box">
+                        <div class="sig-line">Engr. Ahsan</div>
+                        <small>Head, R&M Division</small>
+                    </div>
                 </div>
+                
+                <p style="margin-top:40px; font-size:11px; color:#94a3b8;">
+                    Verification Link: msahsanzafar.github.io/LUMHS-BMERM-certificates/
+                </p>
             </div>
-
-            <p style="letter-spacing:4px; color:#666; font-weight:bold;">CERTIFICATE OF ACHIEVEMENT</p>
-            <h2 style="font-family:'Playfair Display', serif; font-size:48px; color:var(--primary); margin:10px 0;" id="d-title">Certificate of Internship</h2>
-            <p>This is to certify that</p>
-            <div class="student-name" id="d-name">STUDENT NAME</div>
-            <p style="font-size:18px;">Student ID: <b id="d-sid">00BME</b> • <b id="d-uni">LUMHS</b></p>
-            <p style="max-width:85%; margin:10px auto; font-size:18px;">has successfully completed <b id="d-type">Training</b> of <b id="d-duration">Duration</b> at the Biomedical Engineering Department, Repair & Maintenance Division.</p>
-
-            <div class="sig-section">
-                <div class="sig-box"><div class="sig-line">Supervisor</div><small>R&M Division, BME Dept</small></div>
-                <div id="qrcode"></div>
-                <div class="sig-box"><div class="sig-line">Engr. Ahsan</div><small>Head, R&M Division</small></div>
-            </div>
-            <p style="margin-top:35px; font-size:11px; color:#888;">Verification: msahsanzafar.github.io/LUMHS-BMERM-certificates/</p>
         </div>
-    </div>
-    <div style="text-align:center; margin:30px 0;" class="no-print">
-        <button onclick="window.print()" style="padding:15px 40px; background:var(--gold); border:none; color:white; font-weight:bold; border-radius:8px; cursor:pointer;">PRINT CERTIFICATE (A4 LANDSCAPE)</button>
+        
+        <div style="text-align:center; margin-top:30px;" class="no-print">
+            <button onclick="window.print()" style="background:var(--gold); color:white; padding:15px 40px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">PRINT CERTIFICATE (A4 LANDSCAPE)</button>
+        </div>
     </div>
 </div>
 
 <div id="verify-mode" class="verify-screen" style="display:none;">
     <div class="verify-card">
         <div style="font-size: 50px;">✅</div>
-        <h1 style="color:var(--primary);">Verified Certificate</h1>
+        <h1 style="color:var(--primary); margin:10px 0;">Verified Certificate</h1>
         <p id="v-msg" style="font-size:18px; line-height:1.6;"></p>
         <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-        <button onclick="window.location.href='index.html'" style="padding:10px 20px; cursor:pointer;">Back to Portal</button>
+        <button onclick="window.location.href='index.html'" style="padding:10px 20px; cursor:pointer;">Close</button>
     </div>
 </div>
 
 <script>
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-'+tab).classList.add('active');
-        document.getElementById('btn-'+tab).classList.add('active');
-        if(tab !== 'issue') document.getElementById('cert-preview-zone').style.display = 'none';
-    }
+    // Set current date on dashboard
+    document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    function generateCert() {
-        const name = document.getElementById('name').value;
-        const sid = document.getElementById('sid').value;
-        const uni = document.getElementById('uni').value;
-        const type = document.getElementById('type').value;
-        const duration = document.getElementById('duration').value;
-        const certID = "LUMHS-" + Math.floor(1000 + Math.random() * 9000);
-
-        if(!name || !sid) { alert("Please enter Name and ID"); return; }
-
-        document.getElementById('d-name').innerText = name;
-        document.getElementById('d-sid').innerText = sid;
-        document.getElementById('d-uni').innerText = uni;
-        document.getElementById('d-type').innerText = type;
-        document.getElementById('d-duration').innerText = duration;
-        document.getElementById('d-title').innerText = "Certificate of " + type;
-
-        document.getElementById('qrcode').innerHTML = "";
-        const vURL = window.location.origin + window.location.pathname + "?verify=" + certID + "&n=" + btoa(name) + "&t=" + btoa(type);
-        new QRCode(document.getElementById("qrcode"), { text: vURL, width: 90, height: 90 });
-
-        document.getElementById('cert-preview-zone').style.display = 'block';
-        window.scrollTo(0, document.body.scrollHeight);
-
-        // Update Manage Table
-        const table = document.getElementById('manage-table');
-        const row = table.insertRow(-1);
-        row.innerHTML = `<td>${certID}</td><td>${name}</td><td>${type}</td><td>${uni}</td>`;
-        document.getElementById('count-total').innerText = table.rows.length - 1;
-    }
-
-    window.onload = function() {
-        const params = new URLSearchParams(window.location.search);
-        if(params.has('verify')) {
-            document.getElementById('main-admin').style.display = "none";
-            document.querySelector('.header-nav').style.display = "none";
-            document.getElementById('verify-mode').style.display = "block";
-            
-            const name = atob(params.get('n'));
-            const type = atob(params.get('t'));
-            document.getElementById('v-msg').innerHTML = `This <b>Certificate of ${type}</b> issued to <b>${name}</b> is <b>Authentic</b> and verified by LUMHS R&M Division.`;
-        }
-    }
-</script>
-</body>
-</html>
+    function generateCertificate
