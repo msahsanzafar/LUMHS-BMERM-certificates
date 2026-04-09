@@ -4,567 +4,384 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Certificate Verification — LUMHS Biomedical Engineering</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>const ADMIN_PASSWORD = 'lumhs1234';</script>
 <style>
-:root {
-  --bg: #F5F3EE;
-  --surface: #FAFAF8;
-  --surface2: #EFEDE7;
-  --border: #E2DDD6;
-  --text: #1A1916;
-  --text-muted: #7A756C;
-  --text-light: #A8A39A;
-  --accent: #1B4F8A;
-  --accent-light: #E8EFF8;
-  --accent2: #2D7A5F;
-  --accent2-light: #E6F4EF;
-  --danger: #A33020;
-  --danger-light: #F9EDEB;
-  --warning: #8A5A1B;
-  --warning-light: #F8F0E6;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F3EE;--surface:#FAFAF8;--surface2:#EFEDE7;--border:#E2DDD6;
+  --text:#1A1916;--text-muted:#7A756C;--text-light:#A8A39A;
+  --accent:#1B4F8A;--accent-light:#E8EFF8;
+  --accent2:#2D7A5F;--accent2-light:#E6F4EF;
+  --danger:#A33020;--danger-light:#F9EDEB;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+.login-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);margin:1rem 0 0.25rem}
+.login-sub{font-size:12px;color:var(--text-muted);margin-bottom:1.5rem}
+.login-box input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--bg);color:var(--text);margin-bottom:12px;text-align:center;letter-spacing:3px}
+.login-box input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,79,138,0.1)}
+.login-err{color:var(--danger);font-size:13px;margin-bottom:8px;display:none}
+#app{display:none}
+.header{background:var(--text);color:var(--surface);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.header-logo{display:flex;align-items:center;gap:10px}
+.logo-badge{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:14px;color:white}
+.header-title{font-size:14px;font-weight:500}
+.header-sub{font-size:11px;color:#9A9590;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px}
+.header-date{font-size:11px;color:#9A9590}
+.logout-btn{font-size:12px;color:#9A9590;background:none;border:1px solid #444;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{color:white;border-color:#777}
+.container{max-width:960px;margin:0 auto;padding:1.5rem}
+.tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:12px;margin-bottom:1.5rem;border:1px solid var(--border)}
+.tab{flex:1;padding:9px 6px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;border-radius:9px;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.tab:hover{color:var(--text);background:var(--surface)}
+.tab.active{background:var(--surface);color:var(--text);font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.panel{display:none;animation:fadeIn 0.2s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:1.25rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.form-group label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+input,select{padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);transition:border-color 0.15s;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,79,138,0.1)}
+.btn{padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--text);color:var(--surface);border-color:var(--text)}
+.btn-primary:hover{background:#2D2C29}
+.btn-accent{background:var(--accent);color:white;border-color:var(--accent)}
+.btn-accent:hover{background:#163F70}
+.btn-full{width:100%}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center}
+.stat-num{font-family:'DM Serif Display',serif;font-size:30px;color:var(--text)}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:4px}
+.verify-search{background:var(--surface);border:2px dashed var(--border);border-radius:16px;padding:2rem;text-align:center}
+.verify-search:focus-within{border-color:var(--accent)}
+.verify-icon{font-size:30px;margin-bottom:1rem}
+.verify-search input{max-width:280px;text-align:center;font-size:16px;letter-spacing:2px;margin:0 auto 1rem;display:block}
+.verify-ok{background:var(--accent2-light);border:1px solid #B2D9C9;border-radius:14px;padding:1.5rem;margin-top:1rem}
+.verify-ok-head{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent2);margin-bottom:1rem}
+.verify-fail{background:var(--danger-light);border:1px solid #E8C8C3;border-radius:14px;padding:1.5rem;margin-top:1rem}
+.verify-fail-head{font-family:'DM Serif Display',serif;font-size:20px;color:var(--danger);margin-bottom:0.5rem}
+.info-table{width:100%;font-size:14px;border-collapse:collapse}
+.info-table td{padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.06)}
+.info-table td:first-child{color:var(--text-muted);width:40%;font-size:13px}
+.info-table td:last-child{font-weight:500}
+.cert-list{display:flex;flex-direction:column;gap:8px;margin-top:.5rem}
+.cert-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg);border-radius:12px;border:1px solid var(--border);transition:border-color 0.15s}
+.cert-row:hover{border-color:#C8C3BB}
+.cert-row-name{font-size:14px;font-weight:500}
+.cert-row-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.cert-row-right{text-align:right}
+.cert-row-id{font-size:11px;color:var(--text-light);font-family:monospace}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;margin-top:4px}
+.badge-active{background:var(--accent2-light);color:var(--accent2)}
+.badge-type{background:var(--accent-light);color:var(--accent)}
+.search-wrap{position:relative}
+.search-wrap input{padding-left:34px;margin-bottom:0}
+.search-wrap::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:16px;pointer-events:none}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:4px;flex-shrink:0}
+.activity-dot.red{background:var(--danger)}
+.activity-time{font-size:11px;color:var(--text-light)}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-muted);font-size:14px}
+.empty-icon{font-size:36px;margin-bottom:.75rem;opacity:.4}
+
+/* ── CERTIFICATE ── */
+.cert-wrap{background:#fff;border:2.5px solid #1a3a5c;position:relative;margin-top:1rem}
+.cert-inner-border{margin:9px;border:0.75px solid #c4a84a;padding:1.75rem 2rem}
+.cert-cssvg{position:absolute;width:28px;height:28px}
+.cert-cssvg.tl{top:4px;left:4px}
+.cert-cssvg.tr{top:4px;right:4px;transform:scaleX(-1)}
+.cert-cssvg.bl{bottom:4px;left:4px;transform:scaleY(-1)}
+.cert-cssvg.br{bottom:4px;right:4px;transform:scale(-1)}
+.cert-logo-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:.75rem}
+.cert-inst-main{font-family:'Lato','Arial',sans-serif;font-size:13px;font-weight:900;color:#1a3a5c;text-transform:uppercase;letter-spacing:.3px;text-align:left;line-height:1.3}
+.cert-inst-sub{font-family:'Lato','Arial',sans-serif;font-size:10px;font-weight:700;color:#555;text-align:left;margin-top:3px;line-height:1.5}
+.cert-gold-line{height:1.5px;background:#c4a84a;margin:.7rem auto;width:85%}
+.cert-thin-line{height:.5px;background:rgba(26,58,92,.15);margin:.5rem 0}
+.cert-title-tag{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#999;font-weight:700;margin-bottom:.3rem;text-align:center}
+.cert-type{font-family:'DM Serif Display','Georgia',serif;font-size:26px;font-style:italic;color:#1a3a5c;margin-bottom:.2rem;text-align:center}
+.cert-ornament{color:#c4a84a;font-size:14px;letter-spacing:6px;margin:.2rem 0;text-align:center}
+.cert-presented{font-size:13px;color:#888;font-style:italic;margin:.5rem 0 .2rem;text-align:center}
+.cert-name{font-family:'DM Serif Display','Georgia',serif;font-size:30px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem;text-align:center}
+.cert-details{font-size:13px;color:#555;line-height:1.9;margin-bottom:.5rem;text-align:center}
+.cert-details strong{color:#1a1a1a;font-weight:600}
+.cert-meta-row{display:flex;justify-content:center;gap:1.75rem;margin:.5rem 0;flex-wrap:wrap}
+.cert-meta-item{text-align:center}
+.cert-meta-label{font-family:'Lato',sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#aaa;font-weight:700;display:block;margin-bottom:2px}
+.cert-meta-val{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;color:#1a3a5c}
+.cert-footer-row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:1.25rem;padding-top:.75rem;border-top:.5px solid rgba(26,58,92,.12)}
+.cert-sig{text-align:center;min-width:120px}
+.cert-sig-line{height:1px;background:#333;width:100px;margin:0 auto 4px}
+.cert-sig-name{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;color:#1a1a1a}
+.cert-sig-title{font-family:'Lato',sans-serif;font-size:9px;color:#888;margin-top:2px}
+.cert-id-pill{display:inline-block;background:#f0f4f8;border:1px solid #c4a84a;border-radius:20px;padding:4px 14px;font-family:'Lato',monospace;font-size:10px;font-weight:700;color:#1a3a5c;letter-spacing:1.5px;margin-bottom:.4rem}
+.cert-actions{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:center;background:var(--surface)}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .tab .tab-text{display:none}
+  .container{padding:1rem}
+  .cert-footer-row{flex-direction:column;align-items:center;gap:1rem}
 }
-/* HEADER */
-.header {
-  background: var(--text);
-  color: var(--surface);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+
+/* ── PRINT ── */
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body,html{background:white !important;margin:0;padding:0}
+  #login-screen,#app,.no-print{display:none !important}
+  #print-area{display:block !important;padding:1.5cm}
+  .cert-wrap{border:2.5px solid #1a3a5c !important;page-break-inside:avoid;margin:0;width:100%}
+  .cert-gold-line{background:#c4a84a !important}
 }
-.header-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.logo-badge {
-  width: 34px;
-  height: 34px;
-  background: var(--accent);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'DM Serif Display', serif;
-  font-size: 16px;
-  color: white;
-}
-.header-title {
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.2px;
-}
-.header-sub {
-  font-size: 11px;
-  color: #9A9590;
-  margin-top: 1px;
-}
-.header-right {
-  font-size: 12px;
-  color: #9A9590;
-}
-/* LAYOUT */
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-/* TABS */
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--surface2);
-  padding: 4px;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  border: 1px solid var(--border);
-}
-.tab {
-  flex: 1;
-  padding: 10px 8px;
-  border: none;
-  background: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: 9px;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.tab .icon { font-size: 14px; }
-.tab:hover { color: var(--text); background: var(--surface); }
-.tab.active {
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 500;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-/* PANELS */
-.panel { display: none; animation: fadeIn 0.2s ease; }
-.panel.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-/* CARDS */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-}
-.card-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 18px;
-  color: var(--text);
-  margin-bottom: 1.25rem;
-}
-/* FORM */
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.form-group label { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-input, select, textarea {
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  background: var(--bg);
-  color: var(--text);
-  transition: border-color 0.15s, box-shadow 0.15s;
-  width: 100%;
-}
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(27,79,138,0.1);
-}
-/* BUTTONS */
-.btn {
-  padding: 11px 20px;
-  border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-}
-.btn:hover { background: var(--surface2); }
-.btn-primary {
-  background: var(--text);
-  color: var(--surface);
-  border-color: var(--text);
-}
-.btn-primary:hover { background: #2D2C29; }
-.btn-accent {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-.btn-accent:hover { background: #163F70; }
-.btn-full { width: 100%; }
-/* STATS GRID */
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.25rem;
-  text-align: center;
-}
-.stat-num { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text); }
-.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-/* CERTIFICATE PREVIEW */
-.cert-preview {
-  background: #fff;
-  border: 2px solid #1a3a5c;
-  border-radius: 4px;
-  padding: 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  margin-top: 1rem;
-  font-family: 'Georgia', serif;
-}
-.cert-inner-border { margin: 8px; border: 0.5px solid #c4a84a; padding: 1.75rem 2rem; }
-.cert-corner { position: absolute; width: 28px; height: 28px; }
-.cert-corner.tl { top: 4px; left: 4px; }
-.cert-corner.tr { top: 4px; right: 4px; transform: scaleX(-1); }
-.cert-corner.bl { bottom: 4px; left: 4px; transform: scaleY(-1); }
-.cert-corner.br { bottom: 4px; right: 4px; transform: scale(-1); }
-.cert-logo-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 0.75rem; }
-.cert-inst-main { font-family: 'Lato','Arial',sans-serif; font-size: 13px; font-weight: 900; color: #1a3a5c; text-transform: uppercase; letter-spacing: 0.3px; text-align: left; line-height: 1.3; }
-.cert-inst-sub { font-family: 'Lato','Arial',sans-serif; font-size: 10px; font-weight: 700; color: #555; text-align: left; margin-top: 3px; line-height: 1.5; }
-.cert-gold-line { height: 1.5px; background: #c4a84a; margin: 0.7rem auto; width: 85%; }
-.cert-thin-line { height: 0.5px; background: rgba(26,58,92,0.15); margin: 0.6rem 0; }
-.cert-title-tag { font-family: 'Lato',sans-serif; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 0.3rem; }
-.cert-type { font-family: 'DM Serif Display','Georgia',serif; font-size: 26px; font-style: italic; color: #1a3a5c; margin-bottom: 0.2rem; }
-.cert-ornament { color: #c4a84a; font-size: 14px; letter-spacing: 6px; margin: 0.2rem 0; }
-.cert-presented { font-size: 13px; color: #888; font-style: italic; margin: 0.5rem 0 0.2rem; }
-.cert-name { font-family: 'DM Serif Display','Georgia',serif; font-size: 30px; font-weight: 600; color: #1a1a1a; margin-bottom: 0.5rem; }
-.cert-details { font-size: 13px; color: #555; line-height: 1.9; margin-bottom: 0.5rem; }
-.cert-details strong { color: #1a1a1a; font-weight: 600; }
-.cert-meta-row { display: flex; justify-content: center; gap: 1.75rem; margin: 0.5rem 0; flex-wrap: wrap; }
-.cert-meta-item { text-align: center; }
-.cert-meta-label { font-family: 'Lato',sans-serif; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #aaa; font-weight: 700; display: block; margin-bottom: 2px; }
-.cert-meta-val { font-family: 'Lato',sans-serif; font-size: 11px; font-weight: 700; color: #1a3a5c; }
-.cert-footer-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1.25rem; padding-top: 0.75rem; border-top: 0.5px solid rgba(26,58,92,0.12); }
-.cert-sig { text-align: center; min-width: 120px; }
-.cert-sig-line { height: 1px; background: #333; width: 100px; margin: 0 auto 4px; }
-.cert-sig-name { font-family: 'Lato',sans-serif; font-size: 11px; font-weight: 700; color: #1a1a1a; }
-.cert-sig-title { font-family: 'Lato',sans-serif; font-size: 9px; color: #888; margin-top: 2px; }
-.cert-id-box { display: inline-block; background: #f0f4f8; border: 1px solid #c4a84a; border-radius: 20px; padding: 4px 14px; font-family: 'Lato',monospace; font-size: 10px; font-weight: 700; color: #1a3a5c; letter-spacing: 1.5px; margin-bottom: 0.4rem; }
-.qr-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin: 1rem 0;
-}
-.qr-wrap canvas, .qr-wrap img { border-radius: 8px; border: 1px solid var(--border); }
-.qr-label { font-size: 11px; color: var(--text-light); }
-.cert-actions { display: flex; gap: 10px; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; }
-/* VERIFY RESULT */
-.verify-ok {
-  background: var(--accent2-light);
-  border: 1px solid #B2D9C9;
-  border-radius: 14px;
-  padding: 1.5rem;
-  margin-top: 1rem;
-}
-.verify-ok-head { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--accent2); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-.verify-fail {
-  background: var(--danger-light);
-  border: 1px solid #E8C8C3;
-  border-radius: 14px;
-  padding: 1.5rem;
-  margin-top: 1rem;
-}
-.verify-fail-head { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--danger); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
-.info-table { width: 100%; font-size: 14px; border-collapse: collapse; }
-.info-table td { padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
-.info-table td:first-child { color: var(--text-muted); width: 38%; font-size: 13px; }
-.info-table td:last-child { font-weight: 500; }
-/* CERT LIST */
-.cert-list { display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; }
-.cert-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--bg);
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  transition: border-color 0.15s;
-}
-.cert-row:hover { border-color: #C8C3BB; }
-.cert-row-name { font-size: 14px; font-weight: 500; }
-.cert-row-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-.cert-row-right { text-align: right; }
-.cert-row-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-  margin-top: 4px;
-}
-.badge-active { background: var(--accent2-light); color: var(--accent2); }
-.badge-type { background: var(--accent-light); color: var(--accent); }
-/* VERIFY SEARCH BOX */
-.verify-search {
-  background: var(--surface);
-  border: 2px dashed var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
-  transition: border-color 0.15s;
-}
-.verify-search:focus-within { border-color: var(--accent); }
-.verify-icon { font-size: 32px; margin-bottom: 1rem; }
-.verify-search input {
-  max-width: 300px;
-  text-align: center;
-  font-size: 16px;
-  letter-spacing: 1px;
-  margin: 0 auto 1rem;
-  display: block;
-}
-/* ACTIVITY LOG */
-.activity-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-.activity-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-top: 4px;
-  flex-shrink: 0;
-}
-.activity-dot.red { background: var(--danger); }
-.activity-time { font-size: 11px; color: var(--text-light); }
-/* SEARCH INPUT */
-.search-wrap { position: relative; }
-.search-wrap input { padding-left: 36px; }
-.search-wrap::before {
-  content: '⌕';
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-light);
-  font-size: 16px;
-  pointer-events: none;
-}
-/* EMPTY STATE */
-.empty {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-.empty-icon { font-size: 40px; margin-bottom: 1rem; opacity: 0.4; }
-/* DIVIDER */
-.divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
-/* PRINT STYLES */
-@media print {
-  .header, .tabs, .no-print { display: none !important; }
-  .cert-preview { box-shadow: none; border: 2px solid #ccc; }
-  .cert-preview::before, .cert-preview::after { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  .form-grid { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .tab .tab-text { display: none; }
-  .container { padding: 1rem; }
-}
+#print-area{display:none}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-logo">
-    <div class="logo-badge">LU</div>
-    <div>
-      <div class="header-title">Certificate Verification Portal</div>
-      <div class="header-sub">LUMHS — Biomedical Engineering, Repair & Maintenance Division</div>
-    </div>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <svg width="64" height="64" viewBox="0 0 72 72" style="margin:0 auto">
+      <circle cx="36" cy="36" r="34" fill="#EEF3FA" stroke="#1a3a5c" stroke-width="2.5"/>
+      <circle cx="36" cy="36" r="27" fill="none" stroke="#c4a84a" stroke-width="1"/>
+      <text x="36" y="20" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="bold" fill="#1a3a5c" letter-spacing="1.5">LIAQUAT</text>
+      <text x="36" y="29" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="bold" fill="#1a3a5c" letter-spacing="1.5">UNIVERSITY</text>
+      <line x1="14" y1="32" x2="58" y2="32" stroke="#c4a84a" stroke-width="1"/>
+      <text x="36" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="900" fill="#1a3a5c" letter-spacing="3">LUMHS</text>
+      <line x1="14" y1="46" x2="58" y2="46" stroke="#c4a84a" stroke-width="0.5"/>
+      <text x="36" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#555" letter-spacing="0.5">JAMSHORO, SINDH · EST. 1881</text>
+    </svg>
+    <div class="login-title">Admin Portal</div>
+    <div class="login-sub">LUMHS · Biomedical Engineering<br>Repair &amp; Maintenance Division</div>
+    <div class="login-err" id="login-err">Incorrect password. Try again.</div>
+    <input type="password" id="pwd-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In →</button>
   </div>
-  <div class="header-right" id="current-date"></div>
 </div>
 
-<div class="container">
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('issue')"><span class="icon">✦</span><span class="tab-text">Issue Certificate</span></button>
-    <button class="tab" onclick="showTab('verify')"><span class="icon">◎</span><span class="tab-text">Verify</span></button>
-    <button class="tab" onclick="showTab('manage')"><span class="icon">≡</span><span class="tab-text">Manage</span></button>
-    <button class="tab" onclick="showTab('stats')"><span class="icon">◈</span><span class="tab-text">Dashboard</span></button>
-  </div>
-
-  <!-- ISSUE TAB -->
-  <div id="panel-issue" class="panel active">
-    <div class="card">
-      <div class="card-title">Issue New Certificate</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Student Full Name</label>
-          <input type="text" id="s-name" placeholder="e.g. Ali Hassan">
-        </div>
-        <div class="form-group">
-          <label>Student ID</label>
-          <input type="text" id="s-id" placeholder="e.g. 24MSBME002">
-        </div>
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo">
+      <div class="logo-badge">LU</div>
+      <div>
+        <div class="header-title">Certificate Portal</div>
+        <div class="header-sub">LUMHS — Biomedical Engineering, R&amp;M Division</div>
       </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Training Type</label>
-          <select id="s-type">
-            <option>Internship</option>
-            <option>Workshop</option>
-            <option>Short Course</option>
-            <option>Technical Training</option>
-            <option>Research Attachment</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Duration</label>
-          <input type="text" id="s-dur" placeholder="e.g. 4 Weeks">
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Start Date</label>
-          <input type="date" id="s-start">
-        </div>
-        <div class="form-group">
-          <label>End Date</label>
-          <input type="date" id="s-end">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>University / Institute</label>
-        <input type="text" id="s-dept" placeholder="e.g. LUMHS Jamshoro, Isra University, DOW University">
-      </div>
-      <button class="btn btn-primary btn-full" onclick="issueCert()">Generate Certificate &amp; QR Code →</button>
     </div>
-    <div id="cert-output"></div>
-  </div>
-
-  <!-- VERIFY TAB -->
-  <div id="panel-verify" class="panel">
-    <div class="card">
-      <div class="card-title">Verify a Certificate</div>
-      <div class="verify-search">
-        <div class="verify-icon">◎</div>
-        <p style="font-size:14px;color:var(--text-muted);margin-bottom:1.25rem;">Enter the Certificate ID printed on the certificate</p>
-        <input type="text" id="v-code" placeholder="IUH-2025-0001" oninput="this.value=this.value.toUpperCase()">
-        <button class="btn btn-accent" onclick="verifyCert()">Verify Now</button>
-      </div>
-      <div id="verify-result"></div>
+    <div class="header-right">
+      <span class="header-date" id="current-date"></span>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
     </div>
   </div>
 
-  <!-- MANAGE TAB -->
-  <div id="panel-manage" class="panel">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
-        <div class="card-title" style="margin-bottom:0;">All Certificates</div>
-        <div class="search-wrap" style="width:220px;">
-          <input type="text" id="search" placeholder="Search name or ID..." oninput="renderList()" style="margin-bottom:0;">
-        </div>
-      </div>
-      <div id="cert-list-container">
-        <div class="empty"><div class="empty-icon">🏅</div><p>No certificates issued yet.</p></div>
-      </div>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('issue')"><span>✦</span><span class="tab-text"> Issue</span></button>
+      <button class="tab" onclick="showTab('verify')"><span>◎</span><span class="tab-text"> Verify</span></button>
+      <button class="tab" onclick="showTab('manage')"><span>≡</span><span class="tab-text"> Manage</span></button>
+      <button class="tab" onclick="showTab('stats')"><span>◈</span><span class="tab-text"> Dashboard</span></button>
     </div>
-  </div>
 
-  <!-- DASHBOARD TAB -->
-  <div id="panel-stats" class="panel">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num" id="st-total">0</div><div class="stat-label">Total Issued</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-verified">0</div><div class="stat-label">Verifications</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-intern">0</div><div class="stat-label">Internships</div></div>
-      <div class="stat-card"><div class="stat-num" id="st-other">0</div><div class="stat-label">Workshops / Other</div></div>
+    <div id="panel-issue" class="panel active">
+      <div class="card">
+        <div class="card-title">Issue New Certificate</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Student Full Name</label><input type="text" id="s-name" placeholder="e.g. Ali Hassan"></div>
+          <div class="form-group"><label>Student ID</label><input type="text" id="s-id" placeholder="e.g. 24MSBME002"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Training Type</label>
+            <select id="s-type"><option>Internship</option><option>Workshop</option><option>Short Course</option><option>Technical Training</option><option>Research Attachment</option></select>
+          </div>
+          <div class="form-group"><label>Duration</label><input type="text" id="s-dur" placeholder="e.g. 4 Weeks"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Start Date</label><input type="date" id="s-start"></div>
+          <div class="form-group"><label>End Date</label><input type="date" id="s-end"></div>
+        </div>
+        <div class="form-group"><label>University / Institute</label><input type="text" id="s-dept" placeholder="e.g. LUMHS Jamshoro, Isra University"></div>
+        <button class="btn btn-primary btn-full" onclick="issueCert()">Generate Certificate &amp; QR Code →</button>
+      </div>
+      <div id="cert-output"></div>
     </div>
-    <div class="card">
-      <div class="card-title">Activity Log</div>
-      <div id="activity-log"><div class="empty"><div class="empty-icon">◈</div><p>No activity yet.</p></div></div>
+
+    <div id="panel-verify" class="panel">
+      <div class="card">
+        <div class="card-title">Verify a Certificate</div>
+        <div class="verify-search">
+          <div class="verify-icon">◎</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:1.25rem">Enter the Certificate ID printed on the certificate</p>
+          <input type="text" id="v-code" placeholder="LUMHS-2025-0001" oninput="this.value=this.value.toUpperCase()">
+          <button class="btn btn-accent" onclick="verifyCert()">Verify Now</button>
+        </div>
+        <div id="verify-result"></div>
+      </div>
+    </div>
+
+    <div id="panel-manage" class="panel">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px">
+          <div class="card-title" style="margin-bottom:0">All Certificates</div>
+          <div class="search-wrap" style="width:210px"><input type="text" id="search" placeholder="Search..." oninput="renderList()"></div>
+        </div>
+        <div id="cert-list-container"><div class="empty"><div class="empty-icon">🏅</div><p>No certificates issued yet.</p></div></div>
+      </div>
+    </div>
+
+    <div id="panel-stats" class="panel">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="st-total">0</div><div class="stat-label">Total Issued</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-verified">0</div><div class="stat-label">Verifications</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-intern">0</div><div class="stat-label">Internships</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-other">0</div><div class="stat-label">Other Types</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Activity Log</div>
+        <div id="activity-log"><div class="empty"><div class="empty-icon">◈</div><p>No activity yet.</p></div></div>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- PRINT AREA -->
+<div id="print-area"></div>
 
 <script>
-// ─── STATE ───
-let certs = JSON.parse(localStorage.getItem('lumhs_certs') || '[]');
-let verifyCount = parseInt(localStorage.getItem('lumhs_vcount') || '0');
-let activity = JSON.parse(localStorage.getItem('lumhs_activity') || '[]');
-
-function save() {
-  localStorage.setItem('iuh_certs', JSON.stringify(certs));
-  localStorage.setItem('iuh_vcount', verifyCount);
-  localStorage.setItem('iuh_activity', JSON.stringify(activity.slice(0, 50)));
-}
-
-// ─── DATE ───
-document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-PK', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-
-// ─── TABS ───
-function showTab(t) {
-  const tabs = ['issue','verify','manage','stats'];
-  document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('active', tabs[i] === t));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + t).classList.add('active');
-  if (t === 'manage') renderList();
-  if (t === 'stats') updateStats();
-}
-
-// ─── GENERATE ID ───
-function genId() {
-  const yr = new Date().getFullYear();
-  const num = String(certs.length + 1).padStart(4, '0');
-  return 'LUMHS-' + yr + '-' + num;
-}
-
-// ─── FORMAT DATE ───
-function fmt(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric' });
-}
-
-// ─── ISSUE ───
-function issueCert() {
-  const name = document.getElementById('s-name').value.trim();
-  const sid = document.getElementById('s-id').value.trim();
-  if (!name || !sid) { alert('Please enter Student Name and Student ID.'); return; }
-  const cert = {
-    id: genId(),
-    name,
-    sid,
-    type: document.getElementById('s-type').value,
-    dur: document.getElementById('s-dur').value.trim(),
-    start: document.getElementById('s-start').value,
-    end: document.getElementById('s-end').value,
-    dept: document.getElementById('s-dept').value.trim(),
-    supervisor: 'Engr. Ahsan',
-    issued: new Date().toISOString().split('T')[0],
-    ts: Date.now()
-  };
-  certs.push(cert);
-  activity.unshift({ type:'issue', msg: 'Certificate issued for ' + name, id: cert.id, time: new Date().toLocaleTimeString('en-PK') });
-  save();
-  showCertPreview(cert);
-}
-
-// ─── CERT PREVIEW ───
-const LUMHS_SVG = `<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="32" cy="32" r="30" fill="#f0f4f8" stroke="#1a3a5c" stroke-width="2"/>
-  <circle cx="32" cy="32" r="24" fill="none" stroke="#c4a84a" stroke-width="0.75"/>
-  <text x="32" y="22" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="bold" fill="#1a3a5c" letter-spacing="1">LIAQUAT</text>
-  <text x="32" y="30" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="bold" fill="#1a3a5c" letter-spacing="1">UNIVERSITY</text>
-  <line x1="16" y1="33" x2="48" y2="33" stroke="#c4a84a" stroke-width="0.75"/>
-  <text x="32" y="40" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="900" fill="#1a3a5c" letter-spacing="2">LUMHS</text>
-  <text x="32" y="49" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#555" letter-spacing="0.5">JAMSHORO · EST. 1881</text>
-  <path d="M24 55 Q32 58 40 55" fill="none" stroke="#c4a84a" stroke-width="0.75"/>
+const LOGO_SVG = `<svg width="76" height="76" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="36" cy="36" r="34" fill="#EEF3FA" stroke="#1a3a5c" stroke-width="2.5"/>
+  <circle cx="36" cy="36" r="27" fill="none" stroke="#c4a84a" stroke-width="1"/>
+  <circle cx="36" cy="36" r="3.5" fill="#c4a84a"/>
+  <text x="36" y="20" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="bold" fill="#1a3a5c" letter-spacing="1.5">LIAQUAT</text>
+  <text x="36" y="29" text-anchor="middle" font-family="Georgia,serif" font-size="7" font-weight="bold" fill="#1a3a5c" letter-spacing="1.5">UNIVERSITY</text>
+  <line x1="14" y1="32" x2="58" y2="32" stroke="#c4a84a" stroke-width="1"/>
+  <text x="36" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="900" fill="#1a3a5c" letter-spacing="3">LUMHS</text>
+  <line x1="14" y1="46" x2="58" y2="46" stroke="#c4a84a" stroke-width="0.5"/>
+  <text x="36" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" fill="#555" letter-spacing="0.5">MEDICAL &amp; HEALTH SCIENCES</text>
+  <text x="36" y="63" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="#888" letter-spacing="0.5">JAMSHORO · EST. 1881</text>
+  <path d="M22 68 Q36 71 50 68" fill="none" stroke="#c4a84a" stroke-width="1"/>
 </svg>`;
 
-function showCertPreview(c) {
-  const out = document.getElementById('cert-output');
-  out.innerHTML = `
-  <div class="cert-preview" id="cert-card">
-    <svg class="cert-corner tl" viewBox="0 0 28 28" fill="none"><path d="M2 26L2 2L26 2" stroke="#c4a84a" stroke-width="1.5"/><path d="M5 23L5 5L23 5" stroke="#1a3a5c" stroke-width="0.5"/><circle cx="5" cy="5" r="1.5" fill="#c4a84a"/></svg>
-    <svg class="cert-corner tr" viewBox="0 0 28 28" fill="none"><path d="M2 26L2 2L26 2" stroke="#c4a84a" stroke-width="1.5"/><path d="M5 23L5 5L23 5" stroke="#1a3a5c" stroke-width="0.5"/><circle cx="5" cy="5" r="1.5" fill="#c4a84a"/></svg>
-    <svg class="cert-corner bl" viewBox="0 0 28 28" fill="none"><path d="M2 26L2 2L26 2" stroke="#c4a84a" stroke-width="1.5"/><path d="M5 23L5 5L23 5" stroke="#1a3a5c" stroke-width="0.5"/><circle cx="5" cy="5" r="1.5" fill="#c4a84a"/></svg>
-    <svg class="cert-corner br" viewBox="0 0 28 28" fill="none"><path d="M2 26L2 2L26 2" stroke="#c4a84a" stroke-width="1.5"/><path d="M5 23L5 5L23 5" stroke="#1a3a5c" stroke-width="0.5"/><circle cx="5" cy="5" r="1.5" fill="#c4a84a"/></svg>
+const CORNER_SVG = `<svg viewBox="0 0 28 28" fill="none"><path d="M2 26L2 2L26 2" stroke="#c4a84a" stroke-width="1.5"/><path d="M5 23L5 5L23 5" stroke="#1a3a5c" stroke-width="0.5"/><circle cx="5" cy="5" r="1.5" fill="#c4a84a"/></svg>`;
+
+let certs       = JSON.parse(localStorage.getItem('lumhs_certs')    || '[]');
+let verifyCount = parseInt(localStorage.getItem('lumhs_vcount')     || '0');
+let activity    = JSON.parse(localStorage.getItem('lumhs_activity') || '[]');
+
+function save(){
+  localStorage.setItem('lumhs_certs',    JSON.stringify(certs));
+  localStorage.setItem('lumhs_vcount',   verifyCount);
+  localStorage.setItem('lumhs_activity', JSON.stringify(activity.slice(0,50)));
+}
+
+// ── LOGIN ──
+function doLogin(){
+  if(document.getElementById('pwd-input').value === ADMIN_PASSWORD){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('current-date').textContent =
+      new Date().toLocaleDateString('en-PK',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+  }
+}
+function doLogout(){
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+// ── PUBLIC VERIFY (QR scan) ──
+function checkPublicVerify(){
+  const hash = window.location.hash;
+  if(hash && hash.startsWith('#verify:')){
+    const id = hash.replace('#verify:','').toUpperCase();
+    document.getElementById('login-screen').style.display = 'none';
+    const found = certs.find(c => c.id === id);
+    verifyCount++;
+    save();
+    const el = document.createElement('div');
+    el.style.cssText = 'min-height:100vh;background:#F5F3EE;display:flex;align-items:center;justify-content:center;padding:1rem;font-family:DM Sans,sans-serif';
+    if(found){
+      el.innerHTML = `<div style="background:#fff;border:1px solid #E2DDD6;border-radius:16px;padding:2rem;max-width:420px;width:100%;text-align:center">
+        ${LOGO_SVG}
+        <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#2D7A5F;margin:1rem 0 0.5rem">✓ CERTIFICATE VERIFIED</div>
+        <div style="font-family:Georgia,serif;font-size:22px;color:#1a1a1a;margin-bottom:1rem">${found.name}</div>
+        <table style="width:100%;font-size:13px;border-collapse:collapse;text-align:left">
+          <tr><td style="color:#7A756C;padding:5px 0;border-bottom:1px solid #f0ece3;width:42%">Student ID</td><td style="padding:5px 0;border-bottom:1px solid #f0ece3;font-weight:500">${found.sid}</td></tr>
+          <tr><td style="color:#7A756C;padding:5px 0;border-bottom:1px solid #f0ece3">Training</td><td style="padding:5px 0;border-bottom:1px solid #f0ece3;font-weight:500">${found.type}</td></tr>
+          <tr><td style="color:#7A756C;padding:5px 0;border-bottom:1px solid #f0ece3">Duration</td><td style="padding:5px 0;border-bottom:1px solid #f0ece3;font-weight:500">${found.dur||'—'}</td></tr>
+          <tr><td style="color:#7A756C;padding:5px 0;border-bottom:1px solid #f0ece3">Period</td><td style="padding:5px 0;border-bottom:1px solid #f0ece3;font-weight:500">${fmt(found.start)} – ${fmt(found.end)}</td></tr>
+          <tr><td style="color:#7A756C;padding:5px 0;border-bottom:1px solid #f0ece3">Institute</td><td style="padding:5px 0;border-bottom:1px solid #f0ece3;font-weight:500">${found.dept||'—'}</td></tr>
+          <tr><td style="color:#7A756C;padding:5px 0">Issued</td><td style="padding:5px 0;font-weight:500">${fmt(found.issued)}</td></tr>
+        </table>
+        <div style="margin-top:1rem;background:#E6F4EF;border-radius:10px;padding:8px;font-size:11px;font-weight:700;letter-spacing:1px;color:#2D7A5F">${found.id}</div>
+        <div style="margin-top:.75rem;font-size:11px;color:#A8A39A">Issued by LUMHS — Biomedical Engineering Dept., Jamshoro</div>
+      </div>`;
+    } else {
+      el.innerHTML = `<div style="background:#fff;border:1px solid #E2DDD6;border-radius:16px;padding:2rem;max-width:360px;width:100%;text-align:center">
+        <div style="font-size:48px;margin-bottom:1rem;opacity:.35">✗</div>
+        <div style="font-family:Georgia,serif;font-size:20px;color:#A33020;margin-bottom:.5rem">Certificate Not Found</div>
+        <p style="font-size:13px;color:#7A756C">No certificate found with ID:<br><strong style="font-family:monospace;color:#1a1a1a">${id}</strong></p>
+        <p style="font-size:12px;color:#A8A39A;margin-top:.75rem">Please check the printed certificate and try again.</p>
+      </div>`;
+    }
+    document.body.appendChild(el);
+  }
+}
+
+// ── TABS ──
+function showTab(t){
+  ['issue','verify','manage','stats'].forEach((n,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('active',n===t);
+  });
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  if(t==='manage') renderList();
+  if(t==='stats')  updateStats();
+}
+
+function genId(){return 'LUMHS-'+new Date().getFullYear()+'-'+String(certs.length+1).padStart(4,'0')}
+function fmt(d){return d?new Date(d).toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'}):'—'}
+
+// ── ISSUE ──
+function issueCert(){
+  const name=document.getElementById('s-name').value.trim();
+  const sid=document.getElementById('s-id').value.trim();
+  if(!name||!sid){alert('Please enter Student Name and Student ID.');return;}
+  const cert={id:genId(),name,sid,
+    type:document.getElementById('s-type').value,
+    dur:document.getElementById('s-dur').value.trim(),
+    start:document.getElementById('s-start').value,
+    end:document.getElementById('s-end').value,
+    dept:document.getElementById('s-dept').value.trim(),
+    issued:new Date().toISOString().split('T')[0],ts:Date.now()};
+  certs.push(cert);
+  activity.unshift({type:'issue',msg:'Certificate issued: '+name,id:cert.id,time:new Date().toLocaleTimeString('en-PK')});
+  save();
+  renderCertPreview(cert);
+}
+
+function buildCertHTML(c,forPrint){
+  const qid='qr-'+c.id.replace(/-/g,'_')+(forPrint?'p':'');
+  return `<div class="cert-wrap">
+    <svg class="cert-cssvg tl" viewBox="0 0 28 28" fill="none">${CORNER_SVG.replace('<svg viewBox="0 0 28 28" fill="none">','')}</svg>
+    <svg class="cert-cssvg tr" viewBox="0 0 28 28" fill="none">${CORNER_SVG.replace('<svg viewBox="0 0 28 28" fill="none">','')}</svg>
+    <svg class="cert-cssvg bl" viewBox="0 0 28 28" fill="none">${CORNER_SVG.replace('<svg viewBox="0 0 28 28" fill="none">','')}</svg>
+    <svg class="cert-cssvg br" viewBox="0 0 28 28" fill="none">${CORNER_SVG.replace('<svg viewBox="0 0 28 28" fill="none">','')}</svg>
     <div class="cert-inner-border">
       <div class="cert-logo-row">
-        ${LUMHS_SVG}
+        ${LOGO_SVG}
         <div>
           <div class="cert-inst-main">Liaquat University of Medical &amp; Health Sciences</div>
           <div class="cert-inst-sub">Biomedical Engineering Department &nbsp;·&nbsp; Repair &amp; Maintenance Division<br>Jamshoro, Sindh, Pakistan</div>
@@ -577,151 +394,108 @@ function showCertPreview(c) {
       <div class="cert-presented">This is to certify that</div>
       <div class="cert-name">${c.name}</div>
       <div class="cert-details">
-        Student ID: <strong>${c.sid}</strong>${c.dept ? ' &nbsp;·&nbsp; <strong>'+c.dept+'</strong>' : ''}<br>
-        has successfully completed <strong>${c.type}</strong>${c.dur ? ' of <strong>'+c.dur+'</strong>' : ''}<br>
+        Student ID: <strong>${c.sid}</strong>${c.dept?' &nbsp;·&nbsp; <strong>'+c.dept+'</strong>':''}<br>
+        has successfully completed <strong>${c.type}</strong>${c.dur?' of <strong>'+c.dur+'</strong>':''}<br>
         at the Biomedical Engineering Department, Repair &amp; Maintenance Division
       </div>
       <div class="cert-thin-line"></div>
       <div class="cert-meta-row">
-        ${c.start ? '<div class="cert-meta-item"><span class="cert-meta-label">From</span><span class="cert-meta-val">'+fmt(c.start)+'</span></div>' : ''}
-        ${c.end ? '<div class="cert-meta-item"><span class="cert-meta-label">To</span><span class="cert-meta-val">'+fmt(c.end)+'</span></div>' : ''}
-        ${c.dur ? '<div class="cert-meta-item"><span class="cert-meta-label">Duration</span><span class="cert-meta-val">'+c.dur+'</span></div>' : ''}
+        ${c.start?'<div class="cert-meta-item"><span class="cert-meta-label">From</span><span class="cert-meta-val">'+fmt(c.start)+'</span></div>':''}
+        ${c.end?'<div class="cert-meta-item"><span class="cert-meta-label">To</span><span class="cert-meta-val">'+fmt(c.end)+'</span></div>':''}
+        ${c.dur?'<div class="cert-meta-item"><span class="cert-meta-label">Duration</span><span class="cert-meta-val">'+c.dur+'</span></div>':''}
         <div class="cert-meta-item"><span class="cert-meta-label">Issued</span><span class="cert-meta-val">${fmt(c.issued)}</span></div>
       </div>
       <div class="cert-thin-line"></div>
       <div class="cert-footer-row">
-        <div class="cert-sig">
-          <div class="cert-sig-line"></div>
-          <div class="cert-sig-name">Supervisor</div>
-          <div class="cert-sig-title">R&amp;M Division, BME Dept.</div>
-        </div>
+        <div class="cert-sig"><div class="cert-sig-line"></div><div class="cert-sig-name">Supervisor</div><div class="cert-sig-title">R&amp;M Division, BME Dept.</div></div>
         <div style="text-align:center">
-          <div class="cert-id-box">${c.id}</div><br>
-          <div id="qr-${c.id.replace(/-/g,'_')}" style="display:inline-block;margin-top:4px"></div>
-          <div style="font-family:'Lato',sans-serif;font-size:8px;color:#bbb;margin-top:3px;letter-spacing:0.5px">Scan to verify</div>
+          <div class="cert-id-pill">${c.id}</div><br>
+          <div id="${qid}" style="display:inline-block;margin-top:4px"></div>
+          <div style="font-family:'Lato',sans-serif;font-size:8px;color:#bbb;margin-top:3px">Scan to verify</div>
         </div>
-        <div class="cert-sig">
-          <div class="cert-sig-line"></div>
-          <div class="cert-sig-name">Engr. Ahsan</div>
-          <div class="cert-sig-title">Head, R&amp;M Division</div>
-        </div>
+        <div class="cert-sig"><div class="cert-sig-line"></div><div class="cert-sig-name">Engr. Ahsan</div><div class="cert-sig-title">Head, R&amp;M Division</div></div>
       </div>
     </div>
-    <div class="cert-actions no-print" style="padding:0.75rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:center;">
-      <button class="btn" onclick="copyCertId('${c.id}')">Copy ID</button>
-      <button class="btn" onclick="window.print()">Print / Save PDF</button>
-      <button class="btn btn-primary" onclick="showTab('manage')">View All →</button>
-    </div>
+    ${forPrint?'':'<div class="cert-actions no-print"><button class="btn" onclick="copyCertId(\''+c.id+'\')">Copy ID</button><button class="btn btn-accent" onclick="doPrint(\''+c.id+'\')">Print / PDF</button><button class="btn btn-primary" onclick="showTab(\'manage\')">View All →</button></div>'}
   </div>`;
-
-  // Generate QR code pointing to verify tab with pre-filled ID
-  const qrTarget = window.location.href.split('#')[0] + '#verify:' + c.id;
-  setTimeout(() => {
-    const el = document.getElementById('qr-' + c.id.replace(/-/g, '_'));
-    if (el && typeof QRCode !== 'undefined') {
-      new QRCode(el, { text: qrTarget, width: 100, height: 100, colorDark: '#1A1916', colorLight: '#FAFAF8', correctLevel: QRCode.CorrectLevel.H });
-    }
-  }, 100);
 }
 
-function copyCertId(id) {
-  navigator.clipboard.writeText(id).then(() => {
-    alert('Copied: ' + id);
-  }).catch(() => alert('Certificate ID: ' + id));
+function makeQR(certId,forPrint){
+  const base=window.location.href.split('#')[0];
+  const qid='qr-'+certId.replace(/-/g,'_')+(forPrint?'p':'');
+  setTimeout(()=>{
+    const el=document.getElementById(qid);
+    if(el&&typeof QRCode!=='undefined')
+      new QRCode(el,{text:base+'#verify:'+certId,width:88,height:88,colorDark:'#1a3a5c',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  },200);
 }
 
-// ─── VERIFY ───
-function verifyCert() {
-  const code = document.getElementById('v-code').value.trim().toUpperCase();
-  if (!code) { alert('Please enter a Certificate ID.'); return; }
-  const found = certs.find(c => c.id === code);
+function renderCertPreview(c){
+  document.getElementById('cert-output').innerHTML=buildCertHTML(c,false);
+  makeQR(c.id,false);
+}
+
+function doPrint(certId){
+  const c=certs.find(x=>x.id===certId);
+  if(!c)return;
+  const area=document.getElementById('print-area');
+  area.innerHTML=buildCertHTML(c,true);
+  makeQR(c.id,true);
+  setTimeout(()=>window.print(),500);
+}
+
+function copyCertId(id){
+  navigator.clipboard.writeText(id).then(()=>alert('Copied: '+id)).catch(()=>alert('ID: '+id));
+}
+
+// ── VERIFY ──
+function verifyCert(){
+  const code=document.getElementById('v-code').value.trim().toUpperCase();
+  if(!code){alert('Please enter a Certificate ID.');return;}
+  const found=certs.find(c=>c.id===code);
   verifyCount++;
-  activity.unshift({ type: found ? 'verify_ok' : 'verify_fail', msg: (found ? '✓ Valid' : '✗ Invalid') + ' — ' + code, time: new Date().toLocaleTimeString('en-PK') });
+  activity.unshift({type:found?'verify_ok':'verify_fail',msg:(found?'✓ Valid':'✗ Invalid')+' — '+code,time:new Date().toLocaleTimeString('en-PK')});
   save();
-  const res = document.getElementById('verify-result');
-  if (found) {
-    res.innerHTML = `
-    <div class="verify-ok">
-      <div class="verify-ok-head">✓ Certificate Verified</div>
+  const res=document.getElementById('verify-result');
+  if(found){
+    res.innerHTML=`<div class="verify-ok"><div class="verify-ok-head">✓ Certificate Verified</div>
       <table class="info-table">
         <tr><td>Name</td><td>${found.name}</td></tr>
         <tr><td>Student ID</td><td>${found.sid}</td></tr>
         <tr><td>Training</td><td>${found.type}</td></tr>
-        <tr><td>University / Institute</td><td>${found.dept || '—'}</td></tr>
-        <tr><td>Duration</td><td>${found.dur || '—'}</td></tr>
+        <tr><td>University</td><td>${found.dept||'—'}</td></tr>
+        <tr><td>Duration</td><td>${found.dur||'—'}</td></tr>
         <tr><td>Period</td><td>${fmt(found.start)} – ${fmt(found.end)}</td></tr>
-        <tr><td>Supervisor</td><td>${found.supervisor || '—'}</td></tr>
         <tr><td>Issued On</td><td>${fmt(found.issued)}</td></tr>
         <tr><td>Certificate ID</td><td><strong>${found.id}</strong></td></tr>
-      </table>
-    </div>`;
+      </table></div>`;
   } else {
-    res.innerHTML = `
-    <div class="verify-fail">
-      <div class="verify-fail-head">✗ Not Found</div>
-      <p style="font-size:14px;color:var(--danger);">No certificate found with ID <strong>${code}</strong>.<br>Please check the ID and try again.</p>
-    </div>`;
+    res.innerHTML=`<div class="verify-fail"><div class="verify-fail-head">✗ Not Found</div>
+      <p style="font-size:14px;color:var(--danger)">No certificate found with ID <strong>${code}</strong>.</p></div>`;
   }
 }
 
-// ─── MANAGE LIST ───
-function renderList() {
-  const q = (document.getElementById('search') || { value: '' }).value.toLowerCase();
-  const filtered = certs.filter(c =>
-    c.name.toLowerCase().includes(q) ||
-    c.id.toLowerCase().includes(q) ||
-    c.sid.toLowerCase().includes(q)
-  ).sort((a, b) => b.ts - a.ts);
-  const con = document.getElementById('cert-list-container');
-  if (!filtered.length) {
-    con.innerHTML = '<div class="empty"><div class="empty-icon">🏅</div><p>' + (certs.length ? 'No results found.' : 'No certificates issued yet.') + '</p></div>';
-    return;
-  }
-  con.innerHTML = '<div class="cert-list">' + filtered.map(c => `
-    <div class="cert-row">
-      <div>
-        <div class="cert-row-name">${c.name}</div>
-        <div class="cert-row-meta">${c.sid} &nbsp;·&nbsp; ${c.dept || c.type}</div>
-      </div>
-      <div class="cert-row-right">
-        <div class="cert-row-id">${c.id}</div>
-        <span class="badge badge-active">Active</span>
-        <span class="badge badge-type">${c.type}</span>
-      </div>
-    </div>`).join('') + '</div>';
+// ── MANAGE ──
+function renderList(){
+  const q=(document.getElementById('search')||{value:''}).value.toLowerCase();
+  const f=certs.filter(c=>c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||c.sid.toLowerCase().includes(q)).sort((a,b)=>b.ts-a.ts);
+  const con=document.getElementById('cert-list-container');
+  if(!f.length){con.innerHTML='<div class="empty"><div class="empty-icon">🏅</div><p>'+(certs.length?'No results.':'No certificates issued yet.')+'</p></div>';return;}
+  con.innerHTML='<div class="cert-list">'+f.map(c=>`<div class="cert-row"><div><div class="cert-row-name">${c.name}</div><div class="cert-row-meta">${c.sid} · ${c.type}</div></div><div class="cert-row-right"><div class="cert-row-id">${c.id}</div><span class="badge badge-active">Active</span> <span class="badge badge-type">${c.type}</span></div></div>`).join('')+'</div>';
 }
 
-// ─── STATS ───
-function updateStats() {
-  document.getElementById('st-total').textContent = certs.length;
-  document.getElementById('st-verified').textContent = verifyCount;
-  document.getElementById('st-intern').textContent = certs.filter(c => c.type === 'Internship').length;
-  document.getElementById('st-other').textContent = certs.filter(c => c.type !== 'Internship').length;
-  const log = document.getElementById('activity-log');
-  if (!activity.length) {
-    log.innerHTML = '<div class="empty"><div class="empty-icon">◈</div><p>No activity yet.</p></div>';
-    return;
-  }
-  log.innerHTML = activity.slice(0, 20).map(a => `
-    <div class="activity-item">
-      <div class="activity-dot ${a.type.includes('fail') ? 'red' : ''}"></div>
-      <div>
-        <div>${a.msg}</div>
-        <div class="activity-time">${a.time}</div>
-      </div>
-    </div>`).join('');
+// ── STATS ──
+function updateStats(){
+  document.getElementById('st-total').textContent=certs.length;
+  document.getElementById('st-verified').textContent=verifyCount;
+  document.getElementById('st-intern').textContent=certs.filter(c=>c.type==='Internship').length;
+  document.getElementById('st-other').textContent=certs.filter(c=>c.type!=='Internship').length;
+  const log=document.getElementById('activity-log');
+  if(!activity.length){log.innerHTML='<div class="empty"><div class="empty-icon">◈</div><p>No activity yet.</p></div>';return;}
+  log.innerHTML=activity.slice(0,20).map(a=>`<div class="activity-item"><div class="activity-dot ${a.type.includes('fail')?'red':''}"></div><div><div>${a.msg}</div><div class="activity-time">${a.time}</div></div></div>`).join('');
 }
 
-// ─── QR HASH AUTO-FILL ───
-window.addEventListener('load', () => {
-  const hash = window.location.hash;
-  if (hash && hash.startsWith('#verify:')) {
-    const id = hash.replace('#verify:', '');
-    showTab('verify');
-    document.getElementById('v-code').value = id;
-    verifyCert();
-  }
-});
+window.addEventListener('load', checkPublicVerify);
 </script>
 </body>
 </html>
