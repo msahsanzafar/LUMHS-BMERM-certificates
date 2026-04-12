@@ -4,11 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificate Verification - LUMHS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a472a;
+            --primary-light: #2d5a3f;
+            --gold: #c5a35a;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3f 100%);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -16,89 +25,199 @@
             padding: 20px;
         }
 
-        .verify-container {
+        .container {
+            max-width: 550px;
+            width: 100%;
+        }
+
+        .verify-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
             overflow: hidden;
         }
 
-        .verify-header {
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3f 100%);
+        .card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
         }
 
-        .verify-header img {
-            height: 70px;
-            margin-bottom: 15px;
+        .card-header img {
+            height: 60px;
+            margin-bottom: 10px;
         }
 
-        .verify-header h1 {
-            font-size: 20px;
+        .card-header h1 {
+            font-size: 18px;
             margin-bottom: 5px;
         }
 
-        .verify-header p {
-            font-size: 13px;
+        .card-header p {
+            font-size: 12px;
             opacity: 0.9;
         }
 
-        .verify-body {
+        .card-body {
             padding: 30px;
         }
 
-        .verify-icon {
-            width: 100px;
-            height: 100px;
+        /* Search Section */
+        .search-section {
+            margin-bottom: 25px;
+        }
+
+        .search-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: monospace;
+            text-transform: uppercase;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .search-box button {
+            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background: var(--primary-light);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .scan-note {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        /* Result Section */
+        #result-section {
+            display: none;
+        }
+
+        .result-icon {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 50px;
+            margin: 0 auto 20px;
+            font-size: 40px;
         }
 
-        .verify-icon.valid {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #28a745;
-            border: 3px solid #28a745;
+        .result-icon.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+            border: 3px solid var(--success);
         }
 
-        .verify-icon.invalid {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #dc3545;
-            border: 3px solid #dc3545;
+        .result-icon.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
+            border: 3px solid var(--danger);
         }
 
-        .verify-icon.expired {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
-            color: #856404;
-            border: 3px solid #ffc107;
-        }
-
-        .verify-title {
-            font-size: 24px;
+        .result-title {
+            font-size: 22px;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
-        .verify-title.valid { color: #28a745; }
-        .verify-title.invalid { color: #dc3545; }
-        .verify-title.expired { color: #856404; }
+        .result-title.success { color: var(--success); }
+        .result-title.error { color: var(--danger); }
 
-        .verify-message {
+        .result-message {
             text-align: center;
             color: #666;
-            margin-bottom: 25px;
-            font-size: 14px;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
 
-        .verify-details {
+        .cert-id-box {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .cert-qr-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .cert-qr-display .qr-box {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .cert-qr-display p {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .details-card {
             background: #f8f9fa;
             border-radius: 12px;
             padding: 20px;
@@ -110,6 +229,7 @@
             justify-content: space-between;
             padding: 12px 0;
             border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
         }
 
         .detail-row:last-child {
@@ -118,31 +238,14 @@
 
         .detail-label {
             color: #6c757d;
-            font-size: 13px;
             font-weight: 600;
         }
 
         .detail-value {
             color: #212529;
-            font-size: 14px;
-            font-weight: 500;
             text-align: right;
             max-width: 60%;
             word-break: break-word;
-        }
-
-        .custom-fields {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px dashed #dee2e6;
-        }
-
-        .custom-fields-title {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .badge {
@@ -153,303 +256,316 @@
             font-weight: 600;
         }
 
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-        }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
 
-        .badge-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .verify-footer {
+        .verified-stamp {
             text-align: center;
-            padding: 20px 30px 30px;
-            color: #888;
-            font-size: 12px;
-            border-top: 1px solid #eee;
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-radius: 10px;
+            border: 2px solid var(--success);
         }
 
-        .verify-footer a {
-            color: #1a472a;
+        .verified-stamp .stamp-text {
+            color: var(--success);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .verified-stamp .stamp-date {
+            color: #155724;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .btn-search-again {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .card-footer {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .card-footer a {
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
         }
 
-        .no-data {
+        /* Loading */
+        .loading {
             text-align: center;
-            padding: 50px 30px;
+            padding: 40px;
         }
 
-        .no-data-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        .no-data h2 {
-            color: #6c757d;
-            margin-bottom: 10px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .no-data p {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .cert-id-highlight {
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3f 100%);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: monospace;
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .verify-body {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .verify-icon {
-            animation: pulse 2s infinite;
-        }
-
-        /* Responsive */
+        /* Mobile */
         @media (max-width: 480px) {
-            .verify-container {
-                border-radius: 15px;
-            }
-            
-            .verify-header {
-                padding: 20px;
-            }
-
-            .verify-header img {
-                height: 50px;
-            }
-
-            .verify-body {
-                padding: 20px;
-            }
-
-            .detail-row {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .detail-value {
-                text-align: left;
-                max-width: 100%;
-            }
+            .card-body { padding: 20px; }
+            .search-box { flex-direction: column; }
+            .search-box button { width: 100%; }
+            .detail-row { flex-direction: column; gap: 5px; }
+            .detail-value { text-align: left; max-width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div class="verify-container">
-        <div class="verify-header">
-            <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS Logo" 
-                 onerror="this.style.display='none'">
-            <h1>LIAQUAT UNIVERSITY OF MEDICAL & HEALTH SCIENCES</h1>
-            <p>Institute of Biomedical Engineering & Technology</p>
-        </div>
+    <div class="container">
+        <div class="verify-card">
+            <div class="card-header">
+                <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS" onerror="this.style.display='none'">
+                <h1>LIAQUAT UNIVERSITY OF MEDICAL & HEALTH SCIENCES</h1>
+                <p>Certificate Verification Portal</p>
+            </div>
 
-        <div class="verify-body" id="verify-content">
-            <!-- Content will be loaded here by JavaScript -->
-        </div>
+            <div class="card-body">
+                <!-- Search Section -->
+                <div id="search-section">
+                    <div class="search-section">
+                        <h3>🔍 Enter Certificate ID to Verify</h3>
+                        <div class="search-box">
+                            <input type="text" id="cert-id-input" placeholder="e.g. LUMHS-BME-2026-0001" 
+                                   onkeypress="if(event.key==='Enter') verifyCertificate()">
+                            <button onclick="verifyCertificate()">Verify</button>
+                        </div>
+                    </div>
 
-        <div class="verify-footer">
-            Certificate Verification System<br>
-            <a href="https://lumhs.edu.pk" target="_blank">www.lumhs.edu.pk</a>
+                    <div class="divider"><span>OR</span></div>
+
+                    <div class="scan-note">
+                        📱 Scan the QR code on the certificate<br>
+                        <small>The page will automatically verify</small>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading-section" style="display:none;">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Verifying certificate...</p>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div id="result-section">
+                    <div id="result-content"></div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                Certificate Verification System | <a href="https://lumhs.edu.pk" target="_blank">LUMHS Jamshoro</a>
+            </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const encodedData = urlParams.get('data');
-            const content = document.getElementById('verify-content');
+        const STORAGE_KEY = 'lumhs_certs';
 
-            if (!encodedData) {
-                content.innerHTML = `
-                    <div class="no-data">
-                        <div class="no-data-icon">🔍</div>
-                        <h2>No Certificate Data</h2>
-                        <p>Please scan a valid QR code from a certificate to verify its authenticity.</p>
-                    </div>
-                `;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if certificate ID is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const certId = urlParams.get('id');
+            
+            if (certId) {
+                document.getElementById('cert-id-input').value = certId;
+                setTimeout(verifyCertificate, 500);
+            }
+        });
+
+        function verifyCertificate() {
+            const certId = document.getElementById('cert-id-input').value.trim().toUpperCase();
+            
+            if (!certId) {
+                alert('Please enter a Certificate ID');
                 return;
             }
 
-            try {
-                const certData = JSON.parse(atob(encodedData));
-                
-                // Check if expired
-                let status = 'valid';
-                let statusText = 'Certificate Verified';
-                let statusMessage = 'This certificate is authentic and valid.';
-                let badgeClass = 'badge-success';
-                let badgeText = 'ACTIVE';
+            // Show loading
+            document.getElementById('search-section').style.display = 'none';
+            document.getElementById('loading-section').style.display = 'block';
+            document.getElementById('result-section').style.display = 'none';
 
-                if (certData.expiryDate) {
-                    const expiry = new Date(certData.expiryDate);
-                    const now = new Date();
-                    if (expiry < now) {
-                        status = 'expired';
-                        statusText = 'Certificate Expired';
-                        statusMessage = 'This certificate was valid but has now expired.';
-                        badgeClass = 'badge-warning';
-                        badgeText = 'EXPIRED';
-                    }
+            // Simulate verification delay
+            setTimeout(() => {
+                const result = lookupCertificate(certId);
+                showResult(result, certId);
+            }, 1500);
+        }
+
+        function lookupCertificate(certId) {
+            // Get certificates from localStorage
+            const certs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const cert = certs.find(c => c.id.toUpperCase() === certId.toUpperCase());
+            
+            if (cert) {
+                // Update status to Verified
+                const index = certs.findIndex(c => c.id.toUpperCase() === certId.toUpperCase());
+                if (index !== -1 && certs[index].status !== 'Verified') {
+                    certs[index].status = 'Verified';
+                    certs[index].verifiedAt = new Date().toISOString();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(certs));
                 }
+                return { found: true, data: certs[index] || cert };
+            }
+            
+            return { found: false };
+        }
 
-                const typeText = {
-                    'completion': 'Certificate of Completion',
-                    'participation': 'Certificate of Participation',
-                    'achievement': 'Certificate of Achievement',
-                    'training': 'Training Certificate'
-                };
+        function showResult(result, certId) {
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
 
-                const issueDate = new Date(certData.issueDate).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
+            const content = document.getElementById('result-content');
 
-                let expiryDisplay = 'N/A (No Expiry)';
-                if (certData.expiryDate) {
-                    expiryDisplay = new Date(certData.expiryDate).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                }
-
-                // Build custom fields HTML
-                let customFieldsHTML = '';
-                if (certData.customFields && Object.keys(certData.customFields).length > 0) {
-                    const customEntries = Object.entries(certData.customFields)
-                        .filter(([key, value]) => value)
-                        .map(([key, value]) => `
-                            <div class="detail-row">
-                                <span class="detail-label">${key}</span>
-                                <span class="detail-value">${value}</span>
-                            </div>
-                        `).join('');
-                    
-                    if (customEntries) {
-                        customFieldsHTML = `
-                            <div class="custom-fields">
-                                <div class="custom-fields-title">Additional Information</div>
-                                ${customEntries}
-                            </div>
-                        `;
-                    }
-                }
+            if (result.found) {
+                const cert = result.data;
+                const fromDate = new Date(cert.fromDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                const toDate = new Date(cert.toDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                const issueDate = new Date(cert.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
                 content.innerHTML = `
-                    <div class="verify-icon ${status}">
-                        ${status === 'valid' ? '✓' : status === 'expired' ? '⏰' : '✗'}
+                    <div class="result-icon success">✓</div>
+                    <h2 class="result-title success">Certificate Verified</h2>
+                    <p class="result-message">This certificate is authentic and valid.</p>
+                    
+                    <div class="cert-id-box">${cert.id}</div>
+                    
+                    <div class="cert-qr-display">
+                        <div class="qr-box" id="result-qr"></div>
+                        <p>Unique Certificate QR Code</p>
                     </div>
                     
-                    <h2 class="verify-title ${status}">${statusText}</h2>
-                    <p class="verify-message">${statusMessage}</p>
-                    
-                    <div class="cert-id-highlight">
-                        ${certData.id}
-                    </div>
-
-                    <div class="verify-details">
+                    <div class="details-card">
                         <div class="detail-row">
-                            <span class="detail-label">Recipient Name</span>
-                            <span class="detail-value"><strong>${certData.name}</strong></span>
+                            <span class="detail-label">Name</span>
+                            <span class="detail-value"><strong>${cert.name}</strong></span>
                         </div>
-                        
-                        ${certData.cnic ? `
                         <div class="detail-row">
-                            <span class="detail-label">CNIC / ID</span>
-                            <span class="detail-value">${certData.cnic}</span>
+                            <span class="detail-label">CNIC/Roll No</span>
+                            <span class="detail-value">${cert.cnic}</span>
                         </div>
-                        ` : ''}
-                        
                         <div class="detail-row">
                             <span class="detail-label">Certificate Type</span>
-                            <span class="detail-value">${typeText[certData.type] || certData.type}</span>
+                            <span class="detail-value">${cert.type}</span>
                         </div>
-                        
                         <div class="detail-row">
-                            <span class="detail-label">Course / Training</span>
-                            <span class="detail-value">${certData.course}</span>
+                            <span class="detail-label">Course/Program</span>
+                            <span class="detail-value">${cert.course}</span>
                         </div>
-                        
-                        ${certData.duration ? `
+                        ${cert.duration ? `
                         <div class="detail-row">
                             <span class="detail-label">Duration</span>
-                            <span class="detail-value">${certData.duration}</span>
+                            <span class="detail-value">${cert.duration}</span>
                         </div>
                         ` : ''}
-                        
+                        <div class="detail-row">
+                            <span class="detail-label">Period</span>
+                            <span class="detail-value">${fromDate} - ${toDate}</span>
+                        </div>
                         <div class="detail-row">
                             <span class="detail-label">Issue Date</span>
                             <span class="detail-value">${issueDate}</span>
                         </div>
-                        
-                        <div class="detail-row">
-                            <span class="detail-label">Expiry Date</span>
-                            <span class="detail-value">${expiryDisplay}</span>
-                        </div>
-                        
-                        <div class="detail-row">
-                            <span class="detail-label">Issued By</span>
-                            <span class="detail-value">${certData.issuer || 'LUMHS - Institute of BME'}</span>
-                        </div>
-                        
                         <div class="detail-row">
                             <span class="detail-label">Status</span>
-                            <span class="detail-value">
-                                <span class="badge ${badgeClass}">${badgeText}</span>
-                            </span>
+                            <span class="detail-value"><span class="badge badge-success">✓ VERIFIED</span></span>
                         </div>
-                        
-                        ${customFieldsHTML}
                     </div>
+                    
+                    <div class="verified-stamp">
+                        <div class="stamp-text">✓ VERIFIED</div>
+                        <div class="stamp-date">Verified on ${new Date().toLocaleString()}</div>
+                    </div>
+                    
+                    <button class="btn-search-again" onclick="searchAgain()">🔍 Verify Another Certificate</button>
                 `;
 
-            } catch (error) {
-                console.error('Verification error:', error);
+                // Generate QR code for result
+                setTimeout(() => {
+                    const qrContainer = document.getElementById('result-qr');
+                    if (qrContainer) {
+                        new QRCode(qrContainer, {
+                            text: window.location.href.split('?')[0] + '?id=' + cert.id,
+                            width: 80,
+                            height: 80,
+                            colorDark: '#1a472a',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                    }
+                }, 100);
+
+            } else {
                 content.innerHTML = `
-                    <div class="verify-icon invalid">✗</div>
-                    <h2 class="verify-title invalid">Invalid Certificate</h2>
-                    <p class="verify-message">
-                        This certificate could not be verified. The QR code may be damaged or tampered with.
-                    </p>
-                    <div class="verify-details">
+                    <div class="result-icon error">✗</div>
+                    <h2 class="result-title error">Certificate Not Found</h2>
+                    <p class="result-message">No certificate found with the provided ID. Please check and try again.</p>
+                    
+                    <div class="cert-id-box" style="background: linear-gradient(135deg, #dc3545, #c82333);">${certId}</div>
+                    
+                    <div class="details-card">
                         <div class="detail-row">
-                            <span class="detail-label">Error</span>
-                            <span class="detail-value">Certificate data is invalid or corrupted</span>
+                            <span class="detail-label">Searched ID</span>
+                            <span class="detail-value">${certId}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value"><span class="badge" style="background:#f8d7da;color:#721c24;">NOT FOUND</span></span>
                         </div>
                     </div>
+                    
+                    <p style="text-align:center;color:#666;font-size:13px;margin-top:20px;">
+                        If you believe this is an error, please contact:<br>
+                        <strong>Biomedical Engineering R&M Department</strong><br>
+                        LUMHS Jamshoro
+                    </p>
+                    
+                    <button class="btn-search-again" onclick="searchAgain()">🔍 Try Again</button>
                 `;
             }
-        });
+        }
+
+        function searchAgain() {
+            document.getElementById('search-section').style.display = 'block';
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('cert-id-input').value = '';
+            document.getElementById('cert-id-input').focus();
+            
+            // Clear URL params
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     </script>
 </body>
 </html>
