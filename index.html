@@ -3,834 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMHS Certificate Management System</title>
+    <title>LUMHS Certificate Admin Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0d6efd;
+            --primary-dark: #0a58ca;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border: #dee2e6;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
+        /* LOGIN */
+        #login-screen {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
         }
-
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid white;
-            padding: 8px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            color: #495057;
-            transition: all 0.3s;
-        }
-
-        .tab:hover {
-            background: #e9ecef;
-        }
-
-        .tab.active {
-            background: white;
-            color: #2a5298;
-            font-weight: bold;
-            border-bottom: 3px solid #2a5298;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-            animation: fadeIn 0.3s;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .stat-card h3 {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .number {
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .filters {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: end;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .filter-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .filter-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 10px;
-            border: 1px solid #dee2e6;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        th {
-            background: #2a5298;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        tr:hover {
-            background: #f8f9fa;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .badge-active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-expired {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .badge-verified {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 12px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .certificate-preview {
-            width: 100%;
-            max-width: 1050px;
-            margin: 20px auto;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .certificate {
-            width: 297mm;
-            height: 210mm;
-            background: white;
-            padding: 15mm;
-            position: relative;
-            border: 8px solid #2a5298;
-            border-image: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%) 1;
-            transform-origin: top left;
-        }
-
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .certificate, .certificate * {
-                visibility: visible;
-            }
-            .certificate {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 297mm;
-                height: 210mm;
-                transform: none !important;
-                page-break-after: avoid;
-            }
-            @page {
-                size: A4 landscape;
-                margin: 0;
-            }
-        }
-
-        .cert-header {
-            text-align: center;
-            margin-bottom: 10mm;
-            border-bottom: 3px solid #2a5298;
-            padding-bottom: 8mm;
-        }
-
-        .cert-logo {
-            width: 60mm;
-            height: 60mm;
-            object-fit: contain;
-            margin-bottom: 5mm;
-        }
-
-        .cert-title {
-            font-size: 48px;
-            color: #2a5298;
-            font-weight: bold;
-            margin: 5mm 0;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .cert-body {
-            padding: 10mm 15mm;
-        }
-
-        .cert-text {
-            font-size: 18px;
-            line-height: 1.8;
-            color: #333;
-            margin-bottom: 8mm;
-            text-align: center;
-        }
-
-        .cert-name {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2a5298;
-            text-align: center;
-            margin: 8mm 0;
-            text-transform: uppercase;
-            border-bottom: 2px solid #333;
-            padding-bottom: 3mm;
-            display: inline-block;
-            min-width: 60%;
-        }
-
-        .cert-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8mm;
-            margin: 10mm 0;
-            font-size: 16px;
-        }
-
-        .cert-detail-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2mm;
-        }
-
-        .cert-detail-label {
-            font-weight: bold;
-            color: #2a5298;
-            font-size: 14px;
-        }
-
-        .cert-detail-value {
-            color: #333;
-            padding: 2mm 0;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .cert-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: end;
-            margin-top: 15mm;
-            padding-top: 8mm;
-            border-top: 2px solid #2a5298;
-        }
-
-        .cert-qr {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3mm;
-        }
-
-        .cert-qr img {
-            width: 25mm;
-            height: 25mm;
-        }
-
-        .cert-qr-id {
-            font-size: 12px;
-            color: #666;
-            font-weight: bold;
-        }
-
-        .cert-signature {
-            text-align: center;
-        }
-
-        .cert-signature-line {
-            width: 50mm;
-            border-top: 2px solid #333;
-            margin-bottom: 2mm;
-        }
-
-        .cert-signature-name {
-            font-weight: bold;
-            font-size: 16px;
-            color: #2a5298;
-        }
-
-        .cert-signature-title {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
         .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            text-align: center; max-width: 400px; width: 90%;
+        }
+        .login-box img { height: 80px; margin-bottom: 20px; }
+        .login-box h2 { color: var(--dark); margin-bottom: 10px; }
+        .login-box p { color: var(--gray); margin-bottom: 25px; }
+        .login-box input {
+            width: 100%; padding: 15px; border: 2px solid var(--border);
+            border-radius: 10px; font-size: 16px; margin-bottom: 15px;
+        }
+        .login-box button {
+            width: 100%; padding: 15px; background: var(--primary);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+        .login-box button:hover { background: var(--primary-dark); }
+        .login-error { color: var(--danger); margin-top: 10px; display: none; }
+
+        /* MAIN APP */
+        #main-app { display: none; padding: 20px; }
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+        }
+        .top-bar .logo-section { display: flex; align-items: center; gap: 15px; }
+        .top-bar img { height: 50px; }
+        .top-bar h1 { color: white; font-size: 24px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .user-info {
+            background: rgba(255,255,255,0.2); padding: 10px 20px;
+            border-radius: 30px; color: white; backdrop-filter: blur(10px);
+        }
+        .btn-logout {
+            background: var(--danger); color: white; border: none;
+            padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-left: 10px;
         }
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
+        /* NAV */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .nav-tab {
+            padding: 12px 25px; background: rgba(255,255,255,0.2);
+            color: white; border: none; border-radius: 30px;
+            font-size: 15px; font-weight: 600; cursor: pointer; backdrop-filter: blur(10px);
+        }
+        .nav-tab:hover, .nav-tab.active {
+            background: white; color: var(--primary); box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* CARDS */
+        .card { background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 20px; }
+        .card-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: white; padding: 20px; display: flex; align-items: center; gap: 15px;
+        }
+        .card-header.green { background: linear-gradient(135deg, #198754 0%, #20c997 100%); }
+        .card-header.purple { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); }
+        .card-header h3 { flex: 1; }
+        .card-body { padding: 25px; }
+
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: linear-gradient(135deg, var(--primary) 0%, #6610f2 100%); color: white; padding: 25px; border-radius: 15px; text-align: center; }
+        .stat-card.success { background: linear-gradient(135deg, #198754 0%, #20c997 100%); }
+        .stat-card.warning { background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%); }
+        .stat-card.info { background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%); }
+        .stat-number { font-size: 42px; font-weight: 700; }
+        .stat-label { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+
+        /* DATE FILTER */
+        .date-filter {
+            display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+            padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px;
+        }
+        .date-filter label { font-weight: 600; }
+        .date-filter input[type="date"] { padding: 10px 15px; border: 2px solid var(--border); border-radius: 8px; }
+        .date-filter button {
+            padding: 10px 20px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
         }
 
-        .login-logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
+        /* TABLE */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #f8f9fa; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: #d1e7dd; color: #0f5132; }
+        .badge-danger { background: #f8d7da; color: #842029; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border: none; border-radius: 5px; cursor: pointer; margin: 2px; }
+        .btn-view { background: var(--primary); color: white; }
+        .btn-delete { background: var(--danger); color: white; }
+
+        /* FORMS */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); outline: none; }
+        .btn-generate {
+            padding: 15px 40px; background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+            color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+        .btn-generate:hover { box-shadow: 0 10px 30px rgba(25, 135, 84, 0.4); }
+
+        /* CERTIFICATE */
+        #certificate-section { display: none; }
+        .certificate-wrapper { overflow-x: auto; padding: 20px; background: #f0f0f0; }
+        #printable-area {
+            width: 1050px; height: 750px; background: white; margin: 0 auto;
+            position: relative; border: 15px solid #1a472a; box-shadow: 0 0 30px rgba(0,0,0,0.2);
+        }
+        .cert-inner {
+            border: 3px solid #c5a35a; margin: 15px; height: calc(100% - 30px);
+            position: relative; background: linear-gradient(135deg, #fffef7 0%, #fff8e7 100%);
+        }
+        .cert-corner { position: absolute; width: 60px; height: 60px; border: 3px solid #c5a35a; }
+        .cert-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .cert-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+        .cert-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .cert-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+        .cert-content { text-align: center; padding: 40px 60px; }
+        .cert-logo { height: 80px; margin-bottom: 15px; }
+        .cert-title { font-size: 32px; font-weight: 700; color: #1a472a; font-family: 'Times New Roman', serif; }
+        .cert-subtitle { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .cert-heading { font-size: 28px; color: #c5a35a; font-family: 'Times New Roman', serif; letter-spacing: 5px; margin-bottom: 15px; }
+        .cert-text { font-size: 16px; color: #333; line-height: 1.8; margin-bottom: 10px; }
+        .cert-name { font-size: 36px; font-weight: 700; color: #1a472a; font-family: 'Times New Roman', serif; border-bottom: 2px solid #c5a35a; display: inline-block; padding: 0 30px 5px; margin: 15px 0; }
+        .cert-details { font-size: 14px; color: #555; margin: 20px 0; }
+        .cert-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; padding: 0 40px; }
+        .cert-qr { text-align: center; }
+        .cert-signature { text-align: center; }
+        .cert-signature-line { width: 180px; border-top: 2px solid #333; margin-bottom: 5px; }
+        .cert-signature-name { font-size: 14px; font-weight: 600; }
+        .cert-signature-title { font-size: 11px; color: #666; }
+        .cert-id { position: absolute; bottom: 20px; right: 30px; font-size: 11px; color: #888; }
+        .cert-date-issued { position: absolute; bottom: 20px; left: 30px; font-size: 11px; color: #888; }
+        .certificate-actions { display: flex; gap: 15px; justify-content: center; padding: 20px; flex-wrap: wrap; }
+        .certificate-actions button { padding: 12px 30px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-print-cert { background: var(--success); color: white; }
+        .btn-save-sheets { background: #4caf50; color: white; }
+        .btn-new-cert { background: var(--primary); color: white; }
+
+        /* SETTINGS */
+        .settings-section { background: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 2px solid var(--border); }
+        .settings-section h4 { color: var(--dark); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .settings-section .btn { padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 5px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .custom-field-item { display: flex; gap: 10px; align-items: center; padding: 10px; background: white; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .custom-field-item input { flex: 1; }
+        .custom-field-item select { width: 150px; }
+        .sheets-config { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 10px; padding: 20px; }
+        .sheets-config h4 { color: #2e7d32; border-bottom-color: #a5d6a7; }
+        .connection-status { display: flex; align-items: center; gap: 10px; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .status-connected { background: #d4edda; color: #155724; }
+        .status-disconnected { background: #f8d7da; color: #721c24; }
+
+        /* PRINT */
+        @media print {
+            body * { visibility: hidden !important; }
+            #printable-area, #printable-area * { visibility: visible !important; }
+            #printable-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 297mm !important; height: 210mm !important; margin: 0 !important; border-width: 10px !important; box-shadow: none !important; }
+            @page { size: A4 landscape; margin: 0; }
         }
 
-        .alert {
-            padding: 12px 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        #customFieldsContainer .custom-field {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        #customFieldsContainer .custom-field input {
-            flex: 1;
-        }
-
-        .settings-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .settings-section h3 {
-            color: #2a5298;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .user-list {
-            max-height: 300px;
-            overflow-y: auto;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-        }
-
-        .user-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .user-item:last-child {
-            border-bottom: none;
-        }
-
-        .user-item:hover {
-            background: #f8f9fa;
-        }
-
-        .hidden {
-            display: none !important;
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .nav-tabs { flex-direction: column; }
+            .nav-tab { width: 100%; text-align: center; }
+            .top-bar { flex-direction: column; text-align: center; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stat-number { font-size: 28px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .date-filter { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-container">
+    <!-- LOGIN -->
+    <div id="login-screen">
         <div class="login-box">
-            <div class="login-header">
-                <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS Logo" class="login-logo">
-                <h2>LUMHS Certificate System</h2>
-                <p>Biomedical Engineering R&M Department</p>
-            </div>
-            <div id="loginAlert"></div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="loginUsername" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Login</button>
-            </form>
+            <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS" onerror="this.style.display='none'">
+            <h2>🔐 Admin Login</h2>
+            <p>Certificate Management System</p>
+            <input type="text" id="login-username" placeholder="Username">
+            <input type="password" id="login-password" placeholder="Password" onkeypress="if(event.key==='Enter') doLogin()">
+            <button onclick="doLogin()">Login</button>
+            <p class="login-error" id="login-error">❌ Invalid credentials</p>
         </div>
     </div>
 
-    <!-- Main Application -->
-    <div id="mainApp" class="hidden">
-        <div class="container">
-            <div class="header">
-                <button class="logout-btn" onclick="logout()">Logout</button>
-                <div class="logo-container">
-                    <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS Logo" class="logo">
-                    <div>
-                        <h1>LUMHS Certificate Management System</h1>
-                        <p>Biomedical Engineering Research & Maintenance Department</p>
+    <!-- MAIN APP -->
+    <div id="main-app">
+        <div class="top-bar">
+            <div class="logo-section">
+                <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="Logo" onerror="this.style.display='none'">
+                <h1>Certificate Admin Portal</h1>
+            </div>
+            <div class="user-info">
+                👤 <span id="current-user">Admin</span>
+                <button class="btn-logout" onclick="doLogout()">Logout</button>
+            </div>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('create')">📝 Create Certificate</button>
+            <button class="nav-tab" onclick="showTab('settings')">⚙️ Settings</button>
+        </nav>
+
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="card">
+                <div class="card-header"><h3>📊 Certificate Dashboard</h3></div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total</div></div>
+                        <div class="stat-card success"><div class="stat-number" id="stat-active">0</div><div class="stat-label">Active</div></div>
+                        <div class="stat-card warning"><div class="stat-number" id="stat-expired">0</div><div class="stat-label">Expired</div></div>
+                        <div class="stat-card info"><div class="stat-number" id="stat-thismonth">0</div><div class="stat-label">This Month</div></div>
+                    </div>
+                    <div class="date-filter">
+                        <label>📅 From:</label><input type="date" id="filter-from">
+                        <label>To:</label><input type="date" id="filter-to">
+                        <button onclick="applyDateFilter()">🔍 Filter</button>
+                        <button onclick="clearFilter()" style="background:var(--gray);">Clear</button>
+                        <button onclick="exportToCSV()" style="background:var(--success);">📥 Export</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>ID</th><th>Name</th><th>Course</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="certificates-table"><tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">No certificates</td></tr></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
-                <button class="tab" onclick="switchTab('create')">Create Certificate</button>
-                <button class="tab" onclick="switchTab('settings')">Settings</button>
-            </div>
-
-            <!-- Dashboard Tab -->
-            <div id="dashboardTab" class="tab-content active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Certificates</h3>
-                        <div class="number" id="totalCerts">0</div>
+        <!-- CREATE -->
+        <div id="tab-create" class="tab-content">
+            <div class="card">
+                <div class="card-header green"><h3>📝 Create Certificate</h3></div>
+                <div class="card-body">
+                    <div class="form-grid" id="certificate-form">
+                        <div class="form-group"><label>Full Name *</label><input type="text" id="cert-name" placeholder="Recipient name"></div>
+                        <div class="form-group"><label>CNIC</label><input type="text" id="cert-cnic" placeholder="41000-1234567-8"></div>
+                        <div class="form-group"><label>Course *</label><input type="text" id="cert-course" placeholder="Course name"></div>
+                        <div class="form-group"><label>Type</label><select id="cert-type"><option value="completion">Completion</option><option value="participation">Participation</option><option value="achievement">Achievement</option><option value="training">Training</option></select></div>
+                        <div class="form-group"><label>Issue Date *</label><input type="date" id="cert-date"></div>
+                        <div class="form-group"><label>Expiry Date</label><input type="date" id="cert-expiry"></div>
+                        <div class="form-group"><label>Duration</label><input type="text" id="cert-duration" placeholder="30 Hours"></div>
+                        <div class="form-group"><label>Issued By</label><input type="text" id="cert-issuer" value="LUMHS - Institute of Biomedical Engineering"></div>
+                        <div id="custom-fields-container"></div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Active Certificates</h3>
-                        <div class="number" id="activeCerts">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Verified Certificates</h3>
-                        <div class="number" id="verifiedCerts">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>This Month</h3>
-                        <div class="number" id="monthCerts">0</div>
-                    </div>
-                </div>
-
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>From Date</label>
-                        <input type="date" id="filterFromDate">
-                    </div>
-                    <div class="filter-group">
-                        <label>To Date</label>
-                        <input type="date" id="filterToDate">
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary" onclick="applyDateFilter()">Apply Filter</button>
-                    </div>
-                    <div class="filter-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-secondary" onclick="clearDateFilter()">Clear Filter</button>
-                    </div>
-                </div>
-
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Certificate ID</th>
-                                <th>Name</th>
-                                <th>CNIC/Roll No</th>
-                                <th>Type</th>
-                                <th>Course</th>
-                                <th>From Date</th>
-                                <th>To Date</th>
-                                <th>Issue Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="certificateTable">
-                            <tr>
-                                <td colspan="10" style="text-align: center; padding: 40px;">Loading certificates...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div style="text-align:center;margin-top:25px;"><button class="btn-generate" onclick="generateCertificate()">🎓 Generate Certificate</button></div>
                 </div>
             </div>
-
-            <!-- Create Certificate Tab -->
-            <div id="createTab" class="tab-content">
-                <div id="createAlert"></div>
-                
-                <form id="certificateForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Full Name *</label>
-                            <input type="text" id="certName" required>
+            <div id="certificate-section">
+                <div class="card">
+                    <div class="card-header" style="background:linear-gradient(135deg,#1a472a 0%,#2d5a3f 100%);"><h3>🎓 Preview</h3></div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="certificate-wrapper">
+                            <div id="printable-area">
+                                <div class="cert-inner">
+                                    <div class="cert-corner tl"></div><div class="cert-corner tr"></div>
+                                    <div class="cert-corner bl"></div><div class="cert-corner br"></div>
+                                    <div class="cert-content">
+                                        <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" class="cert-logo" alt="LUMHS" onerror="this.style.display='none'">
+                                        <div class="cert-title">LIAQUAT UNIVERSITY OF MEDICAL & HEALTH SCIENCES</div>
+                                        <div class="cert-subtitle">Institute of Biomedical Engineering & Technology, Jamshoro</div>
+                                        <div class="cert-heading">CERTIFICATE</div>
+                                        <div class="cert-text" id="cert-type-display">Certificate of Completion</div>
+                                        <div class="cert-text">This is to certify that</div>
+                                        <div class="cert-name" id="cert-name-display">Name</div>
+                                        <div class="cert-text">has successfully completed</div>
+                                        <div class="cert-text" style="font-weight:600;font-size:20px;color:#1a472a;" id="cert-course-display">Course</div>
+                                        <div class="cert-details"><span id="cert-duration-display"></span><span id="cert-dates-display"></span></div>
+                                        <div id="cert-custom-display" style="font-size:13px;color:#555;margin-top:10px;"></div>
+                                        <div class="cert-footer">
+                                            <div class="cert-qr" id="qrcode"></div>
+                                            <div class="cert-signature">
+                                                <div class="cert-signature-line"></div>
+                                                <div class="cert-signature-name">Ahsan Zafar</div>
+                                                <div class="cert-signature-title">Head of Biomedical Engineering</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cert-date-issued" id="cert-issued-date"></div>
+                                    <div class="cert-id" id="cert-id-display"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>CNIC / Roll Number *</label>
-                            <input type="text" id="certCNIC" required>
+                        <div class="certificate-actions">
+                            <button class="btn-print-cert" onclick="printCertificate()">🖨️ Print</button>
+                            <button class="btn-save-sheets" onclick="saveCertificate()">📊 Save</button>
+                            <button class="btn-new-cert" onclick="newCertificate()">➕ New</button>
                         </div>
-                        <div class="form-group">
-                            <label>Certificate Type *</label>
-                            <select id="certType" required onchange="toggleCustomType()">
-                                <option value="">Select Type</option>
-                                <option value="Internship">Internship</option>
-                                <option value="Training">Training</option>
-                                <option value="Workshop">Workshop</option>
-                                <option value="Other">Other (Custom)</option>
-                            </select>
-                        </div>
-                        <div class="form-group hidden" id="customTypeGroup">
-                            <label>Custom Type *</label>
-                            <input type="text" id="customType" placeholder="Enter custom certificate type">
-                        </div>
-                        <div class="form-group">
-                            <label>Course / Program *</label>
-                            <input type="text" id="certCourse" required>
-                        </div>
-                        <div class="form-group">
-                            <label>From Date *</label>
-                            <input type="date" id="certFromDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>To Date *</label>
-                            <input type="date" id="certToDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Issue Date *</label>
-                            <input type="date" id="certIssueDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Duration (e.g., 6 Weeks, 3 Months) *</label>
-                            <input type="text" id="certDuration" required>
-                        </div>
-                    </div>
-
-                    <div id="customFieldsContainer"></div>
-
-                    <div style="display: flex; gap: 15px; margin-top: 20px;">
-                        <button type="button" class="btn btn-primary" onclick="generatePreview()">Generate Preview</button>
-                        <button type="button" class="btn btn-success hidden" id="saveBtn" onclick="saveCertificate()">Save to Records</button>
-                        <button type="button" class="btn btn-secondary hidden" id="printBtn" onclick="window.print()">Print Certificate</button>
-                    </div>
-                </form>
-
-                <div id="certificatePreview" class="hidden certificate-preview">
-                    <div class="certificate" id="printable-area">
-                        <!-- Certificate content will be generated here -->
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Settings Tab -->
-            <div id="settingsTab" class="tab-content">
-                <div id="settingsAlert"></div>
-
-                <!-- Change Password Section -->
-                <div class="settings-section">
-                    <h3>🔑 Change Password</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Current Password</label>
-                            <input type="password" id="currentPassword">
+        <!-- SETTINGS -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <div class="card-header purple"><h3>⚙️ Settings</h3></div>
+                <div class="card-body">
+                    <!-- Password -->
+                    <div class="settings-section">
+                        <h4>🔑 Change Password</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Current Password</label><input type="password" id="current-password"></div>
+                            <div class="form-group"><label>New Password</label><input type="password" id="new-password"></div>
+                            <div class="form-group"><label>Confirm Password</label><input type="password" id="confirm-password"></div>
                         </div>
-                        <div class="form-group">
-                            <label>New Password</label>
-                            <input type="password" id="newPassword">
+                        <button class="btn btn-primary" onclick="changePassword()">🔄 Update</button>
+                    </div>
+                    <!-- Users -->
+                    <div class="settings-section">
+                        <h4>👥 User Management</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Username</label><input type="text" id="new-username"></div>
+                            <div class="form-group"><label>Password</label><input type="password" id="new-user-password"></div>
+                            <div class="form-group"><label>Role</label><select id="new-user-role"><option value="admin">Admin</option><option value="operator">Operator</option><option value="viewer">Viewer</option></select></div>
                         </div>
-                        <div class="form-group">
-                            <label>Confirm New Password</label>
-                            <input type="password" id="confirmPassword">
+                        <button class="btn btn-success" onclick="addUser()">➕ Add User</button>
+                        <div class="table-wrapper" style="margin-top:20px;">
+                            <table><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody id="users-table"></tbody></table>
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
-                </div>
-
-                <!-- User Management Section -->
-                <div class="settings-section">
-                    <h3>👥 User Management</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" id="newUsername">
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="newUserPassword">
-                        </div>
-                        <div class="form-group">
-                            <label>&nbsp;</label>
-                            <button class="btn btn-success" onclick="addUser()">Add User</button>
+                    <!-- Custom Fields -->
+                    <div class="settings-section">
+                        <h4>📋 Custom Fields</h4>
+                        <p style="color:#666;margin-bottom:15px;">Extra fields on certificates</p>
+                        <div id="custom-fields-list"></div>
+                        <div class="custom-field-item" style="background:#e3f2fd;border-color:#2196f3;">
+                            <input type="text" id="new-field-name" placeholder="Field Name">
+                            <select id="new-field-type"><option value="text">Text</option><option value="date">Date</option><option value="select">Dropdown</option></select>
+                            <input type="text" id="new-field-options" placeholder="Options (comma separated)">
+                            <button class="btn btn-success" onclick="addCustomField()">➕</button>
                         </div>
                     </div>
-                    <div class="user-list" id="userList"></div>
-                </div>
-
-                <!-- Custom Fields Section -->
-                <div class="settings-section">
-                    <h3>📋 Custom Certificate Fields</h3>
-                    <p style="margin-bottom: 15px; color: #666;">Add additional fields that will appear in the certificate form</p>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Field Name</label>
-                            <input type="text" id="customFieldName">
-                        </div>
-                        <div class="form-group">
-                            <label>&nbsp;</label>
-                            <button class="btn btn-success" onclick="addCustomField()">Add Field</button>
+                    <!-- Google Sheets -->
+                    <div class="settings-section sheets-config">
+                        <h4>📗 Google Sheets</h4>
+                        <div class="form-group"><label>Sheet ID</label><input type="text" id="sheets-id"></div>
+                        <div class="form-group"><label>Web App URL</label><input type="text" id="sheets-url"></div>
+                        <button class="btn btn-success" onclick="testSheetsConnection()">🔗 Test</button>
+                        <button class="btn btn-primary" onclick="saveGoogleSettings()">💾 Save</button>
+                        <div id="connection-status" class="connection-status status-disconnected" style="display:none;">
+                            <span id="status-icon">⚠️</span><span id="status-text">Not Connected</span>
                         </div>
                     </div>
-                    <div class="user-list" id="customFieldsList"></div>
-                </div>
-
-                <!-- Google Sheets Section -->
-                <div class="settings-section">
-                    <h3>📊 Google Sheets Integration</h3>
-                    <p style="color: #666; margin-bottom: 10px;">✅ Google Sheets is automatically configured</p>
-                    <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #dee2e6;">
-                        <p><strong>Sheet ID:</strong> 1WFXN5lXBDc3aR-ZJm4iT_PO-MHZRMK3Z</p>
-                        <p><strong>Status:</strong> <span class="badge badge-active">Connected</span></p>
+                    <!-- Verify URL -->
+                    <div class="settings-section">
+                        <h4>🔗 Verification Portal</h4>
+                        <p style="color:#666;margin-bottom:15px;">QR codes point to this URL (public access)</p>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <input type="text" id="verify-url" readonly style="flex:1;min-width:250px;background:#fff;">
+                            <button class="btn btn-primary" onclick="copyVerifyUrl()">📋 Copy</button>
+                        </div>
                     </div>
-                    <button class="btn btn-primary" onclick="testGoogleSheets()" style="margin-top: 15px;">Test Connection</button>
-                    <button class="btn btn-secondary" onclick="syncFromSheets()" style="margin-top: 15px;">Sync from Sheets</button>
                 </div>
             </div>
         </div>
@@ -843,584 +413,64 @@
             webAppUrl: 'https://script.google.com/macros/s/AKfycbw2Bppkq56shKHp509k8ib7gFJjcnzimT4bAQ9yRWpawtyTOs5sFnvoOwI9pPpcZg/exec'
         };
 
-        // Default users
-        const defaultUsers = [
-            { username: 'admin', password: 'LUMHSBME2025' }
-        ];
+        const STORAGE={users:'lumhs_users',certificates:'lumhs_certificates',customFields:'lumhs_custom_fields',sheetsId:'lumhs_sheets_id',sheetsUrl:'lumhs_sheets_url',counter:'lumhs_cert_counter'};
+        let currentUser=null;
 
-        // Initialize
-        let currentUser = null;
-        let certificates = [];
-        let customFields = [];
+        document.addEventListener('DOMContentLoaded',function(){initSystem();initDates();loadSettings();renderCustomFieldsSettings();renderCustomFieldsForm();loadUsers();setVerifyUrl();});
 
-        // Load data from localStorage
-        function loadData() {
-            const users = localStorage.getItem('users');
-            if (!users) {
-                localStorage.setItem('users', JSON.stringify(defaultUsers));
+        function initSystem(){
+            let users=JSON.parse(localStorage.getItem(STORAGE.users)||'[]');
+            if(users.length===0){
+                users.push({username:'admin',password:'LUMHSBME2025',role:'admin',created:new Date().toISOString()});
+                localStorage.setItem(STORAGE.users,JSON.stringify(users));
             }
-
-            const certs = localStorage.getItem('certificates');
-            if (certs) {
-                certificates = JSON.parse(certs);
-            }
-
-            const fields = localStorage.getItem('customFields');
-            if (fields) {
-                customFields = JSON.parse(fields);
-                renderCustomFieldsList();
-                renderCustomFieldsInForm();
-            }
+            // Auto-set Google Sheets credentials
+            localStorage.setItem(STORAGE.sheetsId, GOOGLE_SHEETS_CONFIG.sheetId);
+            localStorage.setItem(STORAGE.sheetsUrl, GOOGLE_SHEETS_CONFIG.webAppUrl);
         }
-
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const user = users.find(u => u.username === username && u.password === password);
-            
-            if (user) {
-                currentUser = username;
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                loadCertificates();
-                renderUserList();
-                syncFromSheets(); // Auto-sync on login
-            } else {
-                showAlert('loginAlert', 'Invalid username or password', 'error');
-            }
-        });
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('mainApp').classList.add('hidden');
-            document.getElementById('loginForm').reset();
+        function initDates(){const today=new Date();const first=new Date(today.getFullYear(),today.getMonth(),1);document.getElementById('filter-from').value=first.toISOString().split('T')[0];document.getElementById('filter-to').value=today.toISOString().split('T')[0];document.getElementById('cert-date').value=today.toISOString().split('T')[0];}
+        function loadSettings(){
+            // Use hardcoded values
+            document.getElementById('sheets-id').value=GOOGLE_SHEETS_CONFIG.sheetId;
+            document.getElementById('sheets-url').value=GOOGLE_SHEETS_CONFIG.webAppUrl;
         }
+        function setVerifyUrl(){const base=window.location.href.replace('index.html','').replace(/\/$/,'');document.getElementById('verify-url').value=base+'/verify.html';}
 
-        // Tab switching
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
+        function doLogin(){const u=document.getElementById('login-username').value.trim();const p=document.getElementById('login-password').value;const users=JSON.parse(localStorage.getItem(STORAGE.users)||'[]');const user=users.find(x=>x.username===u&&x.password===p);if(user){currentUser=user;document.getElementById('login-screen').style.display='none';document.getElementById('main-app').style.display='block';document.getElementById('current-user').textContent=user.username+' ('+user.role+')';loadCertificates();}else{document.getElementById('login-error').style.display='block';setTimeout(()=>document.getElementById('login-error').style.display='none',3000);}}
+        function doLogout(){currentUser=null;document.getElementById('main-app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-username').value='';document.getElementById('login-password').value='';}
+        function showTab(t){document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');event.target.classList.add('active');}
 
-            if (tabName === 'dashboard') {
-                loadCertificates();
-            }
-        }
+        function changePassword(){const c=document.getElementById('current-password').value;const n=document.getElementById('new-password').value;const cf=document.getElementById('confirm-password').value;if(!c||!n||!cf){alert('Fill all fields');return;}if(n!==cf){alert('Passwords do not match');return;}if(n.length<6){alert('Min 6 characters');return;}let users=JSON.parse(localStorage.getItem(STORAGE.users)||'[]');const i=users.findIndex(x=>x.username===currentUser.username);if(users[i].password!==c){alert('Wrong current password');return;}users[i].password=n;localStorage.setItem(STORAGE.users,JSON.stringify(users));currentUser.password=n;alert('✅ Password changed!');document.getElementById('current-password').value='';document.getElementById('new-password').value='';document.getElementById('confirm-password').value='';}
 
-        // Certificate Type Toggle
-        function toggleCustomType() {
-            const certType = document.getElementById('certType').value;
-            const customTypeGroup = document.getElementById('customTypeGroup');
-            
-            if (certType === 'Other') {
-                customTypeGroup.classList.remove('hidden');
-            } else {
-                customTypeGroup.classList.add('hidden');
-            }
-        }
+        function loadUsers(){const users=JSON.parse(localStorage.getItem(STORAGE.users)||'[]');document.getElementById('users-table').innerHTML=users.map((u,i)=>`<tr><td><strong>${u.username}</strong></td><td><span class="badge ${u.role==='admin'?'badge-success':'badge-danger'}">${u.role}</span></td><td>${u.username!=='admin'?`<button class="btn-sm btn-delete" onclick="deleteUser(${i})">🗑️</button>`:'<em>Default</em>'}</td></tr>`).join('');}
+        function addUser(){const u=document.getElementById('new-username').value.trim();const p=document.getElementById('new-user-password').value;const r=document.getElementById('new-user-role').value;if(!u||!p){alert('Enter username & password');return;}let users=JSON.parse(localStorage.getItem(STORAGE.users)||'[]');if(users.find(x=>x.username===u)){alert('Username exists');return;}users.push({username:u,password:p,role:r,created:new Date().toISOString()});localStorage.setItem(STORAGE.users,JSON.stringify(users));loadUsers();document.getElementById('new-username').value='';document.getElementById('new-user-password').value='';alert('✅ User added!');}
+        function deleteUser(i){if(!confirm('Delete user?'))return;let users=JSON.parse(localStorage.getItem(STORAGE.users)||'[]');users.splice(i,1);localStorage.setItem(STORAGE.users,JSON.stringify(users));loadUsers();}
 
-        // Generate Certificate Preview
-        function generatePreview() {
-            const name = document.getElementById('certName').value;
-            const cnic = document.getElementById('certCNIC').value;
-            const typeSelect = document.getElementById('certType').value;
-            let certType = typeSelect;
-            
-            if (typeSelect === 'Other') {
-                certType = document.getElementById('customType').value;
-            }
-            
-            const course = document.getElementById('certCourse').value;
-            const fromDate = document.getElementById('certFromDate').value;
-            const toDate = document.getElementById('certToDate').value;
-            const issueDate = document.getElementById('certIssueDate').value;
-            const duration = document.getElementById('certDuration').value;
+        function getCustomFields(){return JSON.parse(localStorage.getItem(STORAGE.customFields)||'[]');}
+        function renderCustomFieldsSettings(){const f=getCustomFields();document.getElementById('custom-fields-list').innerHTML=f.map((x,i)=>`<div class="custom-field-item"><span style="flex:1;font-weight:600;">${x.name}</span><span class="badge badge-success">${x.type}</span><button class="btn-sm btn-delete" onclick="deleteCustomField(${i})">🗑️</button></div>`).join('');}
+        function renderCustomFieldsForm(){const f=getCustomFields();document.getElementById('custom-fields-container').innerHTML=f.map(x=>{if(x.type==='select'&&x.options){const opts=x.options.split(',').map(o=>`<option value="${o.trim()}">${o.trim()}</option>`).join('');return`<div class="form-group"><label>${x.name}</label><select id="custom-${x.id}">${opts}</select></div>`;}else if(x.type==='date'){return`<div class="form-group"><label>${x.name}</label><input type="date" id="custom-${x.id}"></div>`;}else{return`<div class="form-group"><label>${x.name}</label><input type="text" id="custom-${x.id}"></div>`;}}).join('');}
+        function addCustomField(){const n=document.getElementById('new-field-name').value.trim();const t=document.getElementById('new-field-type').value;const o=document.getElementById('new-field-options').value.trim();if(!n){alert('Enter field name');return;}let f=getCustomFields();f.push({id:'f'+Date.now(),name:n,type:t,options:t==='select'?o:null});localStorage.setItem(STORAGE.customFields,JSON.stringify(f));renderCustomFieldsSettings();renderCustomFieldsForm();document.getElementById('new-field-name').value='';document.getElementById('new-field-options').value='';alert('✅ Field added!');}
+        function deleteCustomField(i){if(!confirm('Delete field?'))return;let f=getCustomFields();f.splice(i,1);localStorage.setItem(STORAGE.customFields,JSON.stringify(f));renderCustomFieldsSettings();renderCustomFieldsForm();}
 
-            if (!name || !cnic || !certType || !course || !fromDate || !toDate || !issueDate || !duration) {
-                showAlert('createAlert', 'Please fill all required fields', 'error');
-                return;
-            }
+        function generateCertificate(){const name=document.getElementById('cert-name').value.trim();const course=document.getElementById('cert-course').value.trim();const date=document.getElementById('cert-date').value;if(!name||!course||!date){alert('Fill Name, Course, Date');return;}const certId=genCertId();const cf=getCustomFields();const customData={};cf.forEach(x=>{const el=document.getElementById('custom-'+x.id);if(el)customData[x.name]=el.value;});const certData={id:certId,name:name,cnic:document.getElementById('cert-cnic').value.trim(),course:course,type:document.getElementById('cert-type').value,issueDate:date,expiryDate:document.getElementById('cert-expiry').value,duration:document.getElementById('cert-duration').value.trim(),issuer:document.getElementById('cert-issuer').value.trim(),customFields:customData};document.getElementById('cert-name-display').textContent=name;document.getElementById('cert-course-display').textContent=course;document.getElementById('cert-id-display').textContent=certId;const types={'completion':'Certificate of Completion','participation':'Certificate of Participation','achievement':'Certificate of Achievement','training':'Training Certificate'};document.getElementById('cert-type-display').textContent=types[certData.type];const fd=new Date(date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});document.getElementById('cert-dates-display').textContent='Completed on: '+fd;document.getElementById('cert-issued-date').textContent='Issued: '+fd;document.getElementById('cert-duration-display').textContent=certData.duration?'Duration: '+certData.duration+' | ':'';const cd=Object.entries(customData).filter(([k,v])=>v).map(([k,v])=>k+': '+v).join(' | ');document.getElementById('cert-custom-display').textContent=cd;const qr=document.getElementById('qrcode');qr.innerHTML='';const base=window.location.href.replace('index.html','').replace(/\/$/,'');const verifyUrl=base+'/verify.html?data='+btoa(JSON.stringify(certData));new QRCode(qr,{text:verifyUrl,width:80,height:80,colorDark:'#1a472a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});window.currentCertData=certData;document.getElementById('certificate-section').style.display='block';document.getElementById('certificate-section').scrollIntoView({behavior:'smooth'});}
+        function genCertId(){let c=parseInt(localStorage.getItem(STORAGE.counter)||'0')+1;localStorage.setItem(STORAGE.counter,c);const y=new Date().getFullYear();return`LUMHS-BME-${y}-${c.toString().padStart(4,'0')}`;}
+        function printCertificate(){window.print();}
+        function saveCertificate(){if(!window.currentCertData){alert('No certificate!');return;}let certs=JSON.parse(localStorage.getItem(STORAGE.certificates)||'[]');window.currentCertData.status='Active';window.currentCertData.savedAt=new Date().toISOString();window.currentCertData.createdBy=currentUser?.username||'admin';certs.unshift(window.currentCertData);localStorage.setItem(STORAGE.certificates,JSON.stringify(certs));saveToSheets(window.currentCertData);alert('✅ Saved!');loadCertificates();}
+        function newCertificate(){document.getElementById('cert-name').value='';document.getElementById('cert-cnic').value='';document.getElementById('cert-course').value='';document.getElementById('cert-duration').value='';document.getElementById('cert-expiry').value='';getCustomFields().forEach(x=>{const el=document.getElementById('custom-'+x.id);if(el)el.value='';});document.getElementById('certificate-section').style.display='none';window.currentCertData=null;window.scrollTo({top:0,behavior:'smooth'});}
 
-            const certId = 'LUMHS-' + Date.now();
-            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${certId}`;
+        function loadCertificates(){const certs=JSON.parse(localStorage.getItem(STORAGE.certificates)||'[]');updateStats(certs);renderTable(certs);}
+        function updateStats(certs){const now=new Date();const m=now.getMonth();const y=now.getFullYear();document.getElementById('stat-total').textContent=certs.length;document.getElementById('stat-active').textContent=certs.filter(c=>!c.expiryDate||new Date(c.expiryDate)>=now).length;document.getElementById('stat-expired').textContent=certs.filter(c=>c.expiryDate&&new Date(c.expiryDate)<now).length;document.getElementById('stat-thismonth').textContent=certs.filter(c=>{const d=new Date(c.issueDate);return d.getMonth()===m&&d.getFullYear()===y;}).length;}
+        function renderTable(certs){const tb=document.getElementById('certificates-table');if(certs.length===0){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">No certificates</td></tr>';return;}tb.innerHTML=certs.map((c,i)=>{const exp=c.expiryDate&&new Date(c.expiryDate)<new Date();return`<tr><td><strong>${c.id}</strong></td><td>${c.name}</td><td>${c.course}</td><td>${new Date(c.issueDate).toLocaleDateString()}</td><td><span class="badge ${exp?'badge-danger':'badge-success'}">${exp?'Expired':'Active'}</span></td><td><button class="btn-sm btn-view" onclick="viewCert(${i})">👁️</button><button class="btn-sm btn-delete" onclick="deleteCert(${i})">🗑️</button></td></tr>`;}).join('');}
+        function applyDateFilter(){const from=new Date(document.getElementById('filter-from').value);const to=new Date(document.getElementById('filter-to').value);let certs=JSON.parse(localStorage.getItem(STORAGE.certificates)||'[]');const filtered=certs.filter(c=>{const d=new Date(c.issueDate);return d>=from&&d<=to;});renderTable(filtered);}
+        function clearFilter(){loadCertificates();}
+        function viewCert(i){const certs=JSON.parse(localStorage.getItem(STORAGE.certificates)||'[]');const c=certs[i];document.getElementById('cert-name').value=c.name;document.getElementById('cert-cnic').value=c.cnic||'';document.getElementById('cert-course').value=c.course;document.getElementById('cert-type').value=c.type;document.getElementById('cert-date').value=c.issueDate;document.getElementById('cert-expiry').value=c.expiryDate||'';document.getElementById('cert-duration').value=c.duration||'';document.getElementById('cert-issuer').value=c.issuer||'';if(c.customFields){Object.entries(c.customFields).forEach(([n,v])=>{const f=getCustomFields().find(x=>x.name===n);if(f){const el=document.getElementById('custom-'+f.id);if(el)el.value=v;}});}showTab('create');document.querySelectorAll('.nav-tab')[1].classList.add('active');document.querySelectorAll('.nav-tab')[0].classList.remove('active');setTimeout(generateCertificate,100);}
+        function deleteCert(i){if(!confirm('Delete?'))return;let certs=JSON.parse(localStorage.getItem(STORAGE.certificates)||'[]');certs.splice(i,1);localStorage.setItem(STORAGE.certificates,JSON.stringify(certs));loadCertificates();}
+        function exportToCSV(){const certs=JSON.parse(localStorage.getItem(STORAGE.certificates)||'[]');if(certs.length===0){alert('No data');return;}const cf=getCustomFields();const headers=['ID','Name','CNIC','Course','Type','IssueDate','ExpiryDate','Duration','Issuer','Status',...cf.map(f=>f.name)];let csv=headers.join(',')+'\n';certs.forEach(c=>{const row=[c.id,c.name,c.cnic||'',c.course,c.type,c.issueDate,c.expiryDate||'',c.duration||'',c.issuer||'',c.status||'Active',...cf.map(f=>c.customFields?.[f.name]||'')];csv+=row.map(x=>`"${x}"`).join(',')+'\n';});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`LUMHS_Certificates_${new Date().toISOString().split('T')[0]}.csv`;a.click();}
 
-            const certificateHTML = `
-                <div class="cert-header">
-                    <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS Logo" class="cert-logo">
-                    <div class="cert-title">Certificate</div>
-                    <div style="font-size: 18px; color: #666;">Biomedical Engineering Research & Maintenance</div>
-                    <div style="font-size: 16px; color: #666;">Liaquat University of Medical & Health Sciences, Jamshoro</div>
-                </div>
-
-                <div class="cert-body">
-                    <div class="cert-text">This is to certify that</div>
-                    <div style="text-align: center;">
-                        <div class="cert-name">${name}</div>
-                    </div>
-                    <div class="cert-text">
-                        has successfully completed the <strong>${certType}</strong> in <strong>${course}</strong>
-                        from <strong>${formatDate(fromDate)}</strong> to <strong>${formatDate(toDate)}</strong>
-                        with a duration of <strong>${duration}</strong>.
-                    </div>
-
-                    <div class="cert-details">
-                        <div class="cert-detail-item">
-                            <span class="cert-detail-label">CNIC / Roll Number:</span>
-                            <span class="cert-detail-value">${cnic}</span>
-                        </div>
-                        <div class="cert-detail-item">
-                            <span class="cert-detail-label">Issue Date:</span>
-                            <span class="cert-detail-value">${formatDate(issueDate)}</span>
-                        </div>
-                        <div class="cert-detail-item">
-                            <span class="cert-detail-label">Certificate Type:</span>
-                            <span class="cert-detail-value">${certType}</span>
-                        </div>
-                        <div class="cert-detail-item">
-                            <span class="cert-detail-label">Certificate ID:</span>
-                            <span class="cert-detail-value">${certId}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cert-footer">
-                    <div class="cert-qr">
-                        <img src="${qrCodeUrl}" alt="QR Code">
-                        <div class="cert-qr-id">${certId}</div>
-                        <div style="font-size: 10px; color: #999;">Scan to Verify</div>
-                    </div>
-                    <div class="cert-signature">
-                        <div class="cert-signature-line"></div>
-                        <div class="cert-signature-name">Ahsan Zafar</div>
-                        <div class="cert-signature-title">Head of Biomedical Engineering R&M</div>
-                        <div class="cert-signature-title">LUMHS Jamshoro</div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('printable-area').innerHTML = certificateHTML;
-            document.getElementById('certificatePreview').classList.remove('hidden');
-            document.getElementById('saveBtn').classList.remove('hidden');
-            document.getElementById('printBtn').classList.remove('hidden');
-
-            // Store current certificate data
-            window.currentCertificate = {
-                id: certId,
-                name: name,
-                cnic: cnic,
-                type: certType,
-                course: course,
-                fromDate: fromDate,
-                toDate: toDate,
-                issueDate: issueDate,
-                duration: duration,
-                status: 'Active',
-                verified: 'No',
-                createdBy: currentUser,
-                createdAt: new Date().toISOString()
-            };
-
-            showAlert('createAlert', 'Certificate preview generated successfully!', 'success');
-        }
-
-        // Save Certificate
-        async function saveCertificate() {
-            if (!window.currentCertificate) {
-                showAlert('createAlert', 'Please generate certificate preview first', 'error');
-                return;
-            }
-
-            // Save to localStorage
-            certificates.push(window.currentCertificate);
-            localStorage.setItem('certificates', JSON.stringify(certificates));
-
-            // Save to Google Sheets
-            await saveToGoogleSheets(window.currentCertificate);
-
-            showAlert('createAlert', 'Certificate saved successfully!', 'success');
-            
-            // Reset form
-            document.getElementById('certificateForm').reset();
-            document.getElementById('certificatePreview').classList.add('hidden');
-            document.getElementById('saveBtn').classList.add('hidden');
-            document.getElementById('printBtn').classList.add('hidden');
-            window.currentCertificate = null;
-
-            // Reload dashboard
-            loadCertificates();
-        }
-
-        // Save to Google Sheets
-        async function saveToGoogleSheets(cert) {
-            try {
-                const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'add',
-                        data: JSON.stringify(cert)
-                    })
-                });
-                console.log('Saved to Google Sheets');
-            } catch (error) {
-                console.error('Error saving to Google Sheets:', error);
-            }
-        }
-
-        // Test Google Sheets Connection
-        async function testGoogleSheets() {
-            try {
-                showAlert('settingsAlert', 'Testing connection...', 'info');
-                
-                const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl + '?action=test', {
-                    method: 'GET',
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showAlert('settingsAlert', `✅ Connected! Sheet: ${data.sheetName}, Rows: ${data.rowCount}`, 'success');
-                } else {
-                    showAlert('settingsAlert', '❌ Connection failed', 'error');
-                }
-            } catch (error) {
-                showAlert('settingsAlert', '❌ Error: ' + error.message, 'error');
-            }
-        }
-
-        // Sync from Google Sheets
-        async function syncFromSheets() {
-            try {
-                showAlert('settingsAlert', 'Syncing from Google Sheets...', 'info');
-                
-                const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl + '?action=get', {
-                    method: 'GET',
-                });
-                
-                const result = await response.json();
-                
-                if (result.success && result.data) {
-                    const headers = result.data[0];
-                    const rows = result.data.slice(1);
-                    
-                    certificates = rows.map(row => ({
-                        id: row[0] || '',
-                        name: row[1] || '',
-                        cnic: row[2] || '',
-                        course: row[3] || '',
-                        type: row[4] || '',
-                        fromDate: row[5] || '',
-                        toDate: row[6] || '',
-                        duration: row[7] || '',
-                        issueDate: row[8] || '',
-                        status: row[9] || 'Active',
-                        verified: row[10] || 'No',
-                        createdBy: row[11] || 'admin',
-                        createdAt: row[12] || ''
-                    }));
-                    
-                    localStorage.setItem('certificates', JSON.stringify(certificates));
-                    loadCertificates();
-                    
-                    showAlert('settingsAlert', `✅ Synced ${rows.length} certificates from Google Sheets!`, 'success');
-                } else {
-                    showAlert('settingsAlert', '❌ Sync failed', 'error');
-                }
-            } catch (error) {
-                showAlert('settingsAlert', '❌ Error: ' + error.message, 'error');
-            }
-        }
-
-        // Load Certificates
-        function loadCertificates() {
-            const tbody = document.getElementById('certificateTable');
-            
-            if (certificates.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px;">No certificates found. Create your first certificate!</td></tr>';
-                updateStats();
-                return;
-            }
-
-            let html = '';
-            certificates.forEach(cert => {
-                html += `
-                    <tr>
-                        <td>${cert.id}</td>
-                        <td>${cert.name}</td>
-                        <td>${cert.cnic}</td>
-                        <td>${cert.type}</td>
-                        <td>${cert.course}</td>
-                        <td>${formatDate(cert.fromDate)}</td>
-                        <td>${formatDate(cert.toDate)}</td>
-                        <td>${formatDate(cert.issueDate)}</td>
-                        <td>
-                            <span class="badge badge-${cert.status === 'Active' ? 'active' : 'expired'}">${cert.status}</span>
-                            ${cert.verified === 'Yes' ? '<span class="badge badge-verified">Verified</span>' : ''}
-                        </td>
-                        <td>
-                            <button class="btn btn-danger" style="padding: 5px 15px; font-size: 12px;" onclick="deleteCertificate('${cert.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = html;
-            updateStats();
-        }
-
-        // Update Statistics
-        function updateStats() {
-            document.getElementById('totalCerts').textContent = certificates.length;
-            document.getElementById('activeCerts').textContent = certificates.filter(c => c.status === 'Active').length;
-            document.getElementById('verifiedCerts').textContent = certificates.filter(c => c.verified === 'Yes').length;
-            
-            const thisMonth = new Date().getMonth();
-            const thisYear = new Date().getFullYear();
-            const monthCount = certificates.filter(c => {
-                const certDate = new Date(c.issueDate);
-                return certDate.getMonth() === thisMonth && certDate.getFullYear() === thisYear;
-            }).length;
-            document.getElementById('monthCerts').textContent = monthCount;
-        }
-
-        // Date Filter
-        function applyDateFilter() {
-            const fromDate = document.getElementById('filterFromDate').value;
-            const toDate = document.getElementById('filterToDate').value;
-
-            if (!fromDate || !toDate) {
-                showAlert('settingsAlert', 'Please select both from and to dates', 'error');
-                return;
-            }
-
-            const filtered = certificates.filter(cert => {
-                const certDate = new Date(cert.issueDate);
-                return certDate >= new Date(fromDate) && certDate <= new Date(toDate);
-            });
-
-            // Temporarily show filtered results
-            const tbody = document.getElementById('certificateTable');
-            let html = '';
-            filtered.forEach(cert => {
-                html += `
-                    <tr>
-                        <td>${cert.id}</td>
-                        <td>${cert.name}</td>
-                        <td>${cert.cnic}</td>
-                        <td>${cert.type}</td>
-                        <td>${cert.course}</td>
-                        <td>${formatDate(cert.fromDate)}</td>
-                        <td>${formatDate(cert.toDate)}</td>
-                        <td>${formatDate(cert.issueDate)}</td>
-                        <td>
-                            <span class="badge badge-${cert.status === 'Active' ? 'active' : 'expired'}">${cert.status}</span>
-                            ${cert.verified === 'Yes' ? '<span class="badge badge-verified">Verified</span>' : ''}
-                        </td>
-                        <td>
-                            <button class="btn btn-danger" style="padding: 5px 15px; font-size: 12px;" onclick="deleteCertificate('${cert.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html || '<tr><td colspan="10" style="text-align: center;">No certificates found in this date range</td></tr>';
-        }
-
-        function clearDateFilter() {
-            document.getElementById('filterFromDate').value = '';
-            document.getElementById('filterToDate').value = '';
-            loadCertificates();
-        }
-
-        // Delete Certificate
-        function deleteCertificate(id) {
-            if (confirm('Are you sure you want to delete this certificate?')) {
-                certificates = certificates.filter(c => c.id !== id);
-                localStorage.setItem('certificates', JSON.stringify(certificates));
-                loadCertificates();
-            }
-        }
-
-        // Change Password
-        function changePassword() {
-            const current = document.getElementById('currentPassword').value;
-            const newPass = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
-
-            if (!current || !newPass || !confirm) {
-                showAlert('settingsAlert', 'Please fill all password fields', 'error');
-                return;
-            }
-
-            if (newPass !== confirm) {
-                showAlert('settingsAlert', 'New passwords do not match', 'error');
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem('users'));
-            const userIndex = users.findIndex(u => u.username === currentUser);
-            
-            if (users[userIndex].password !== current) {
-                showAlert('settingsAlert', 'Current password is incorrect', 'error');
-                return;
-            }
-
-            users[userIndex].password = newPass;
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            
-            showAlert('settingsAlert', 'Password updated successfully!', 'success');
-        }
-
-        // User Management
-        function addUser() {
-            const username = document.getElementById('newUsername').value;
-            const password = document.getElementById('newUserPassword').value;
-
-            if (!username || !password) {
-                showAlert('settingsAlert', 'Please enter username and password', 'error');
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem('users'));
-            
-            if (users.find(u => u.username === username)) {
-                showAlert('settingsAlert', 'Username already exists', 'error');
-                return;
-            }
-
-            users.push({ username, password });
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newUserPassword').value = '';
-            
-            renderUserList();
-            showAlert('settingsAlert', 'User added successfully!', 'success');
-        }
-
-        function deleteUser(username) {
-            if (username === 'admin') {
-                showAlert('settingsAlert', 'Cannot delete admin user', 'error');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete this user?')) {
-                let users = JSON.parse(localStorage.getItem('users'));
-                users = users.filter(u => u.username !== username);
-                localStorage.setItem('users', JSON.stringify(users));
-                renderUserList();
-                showAlert('settingsAlert', 'User deleted successfully!', 'success');
-            }
-        }
-
-        function renderUserList() {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userList = document.getElementById('userList');
-            
-            let html = '';
-            users.forEach(user => {
-                html += `
-                    <div class="user-item">
-                        <span><strong>${user.username}</strong></span>
-                        ${user.username !== 'admin' ? `<button class="btn btn-danger" style="padding: 5px 15px; font-size: 12px;" onclick="deleteUser('${user.username}')">Delete</button>` : '<span class="badge badge-active">Admin</span>'}
-                    </div>
-                `;
-            });
-            
-            userList.innerHTML = html;
-        }
-
-        // Custom Fields
-        function addCustomField() {
-            const fieldName = document.getElementById('customFieldName').value;
-            
-            if (!fieldName) {
-                showAlert('settingsAlert', 'Please enter field name', 'error');
-                return;
-            }
-
-            customFields.push({ name: fieldName });
-            localStorage.setItem('customFields', JSON.stringify(customFields));
-            
-            document.getElementById('customFieldName').value = '';
-            renderCustomFieldsList();
-            renderCustomFieldsInForm();
-            showAlert('settingsAlert', 'Custom field added successfully!', 'success');
-        }
-
-        function deleteCustomField(index) {
-            if (confirm('Are you sure you want to delete this field?')) {
-                customFields.splice(index, 1);
-                localStorage.setItem('customFields', JSON.stringify(customFields));
-                renderCustomFieldsList();
-                renderCustomFieldsInForm();
-                showAlert('settingsAlert', 'Field deleted successfully!', 'success');
-            }
-        }
-
-        function renderCustomFieldsList() {
-            const list = document.getElementById('customFieldsList');
-            
-            let html = '';
-            customFields.forEach((field, index) => {
-                html += `
-                    <div class="user-item">
-                        <span><strong>${field.name}</strong></span>
-                        <button class="btn btn-danger" style="padding: 5px 15px; font-size: 12px;" onclick="deleteCustomField(${index})">Delete</button>
-                    </div>
-                `;
-            });
-            
-            list.innerHTML = html || '<div style="padding: 20px; text-align: center; color: #666;">No custom fields added</div>';
-        }
-
-        function renderCustomFieldsInForm() {
-            const container = document.getElementById('customFieldsContainer');
-            
-            let html = '';
-            customFields.forEach((field, index) => {
-                html += `
-                    <div class="form-group">
-                        <label>${field.name}</label>
-                        <input type="text" id="customField_${index}" placeholder="Enter ${field.name}">
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-
-        // Utility Functions
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
-
-        function showAlert(elementId, message, type) {
-            const alertDiv = document.getElementById(elementId);
-            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            setTimeout(() => {
-                alertDiv.innerHTML = '';
-            }, 5000);
-        }
-
-        // Initialize on page load
-        loadData();
+        function saveGoogleSettings(){localStorage.setItem(STORAGE.sheetsId,document.getElementById('sheets-id').value.trim());localStorage.setItem(STORAGE.sheetsUrl,document.getElementById('sheets-url').value.trim());alert('✅ Saved!');}
+        function testSheetsConnection(){const url=document.getElementById('sheets-url').value.trim();if(!url){alert('Enter URL');return;}const st=document.getElementById('connection-status');st.style.display='flex';document.getElementById('status-icon').textContent='⏳';document.getElementById('status-text').textContent='Testing...';st.className='connection-status status-disconnected';fetch(url+'?action=test').then(r=>r.json()).then(d=>{if(d.success){st.className='connection-status status-connected';document.getElementById('status-icon').textContent='✅';document.getElementById('status-text').textContent='Connected!';}else throw new Error(d.error||'Failed');}).catch(e=>{document.getElementById('status-icon').textContent='❌';document.getElementById('status-text').textContent='Failed: '+e.message;});}
+        function saveToSheets(data){const url=localStorage.getItem(STORAGE.sheetsUrl);if(!url)return;fetch(url+'?action=add&data='+encodeURIComponent(JSON.stringify(data))).catch(e=>console.error(e));}
+        function copyVerifyUrl(){navigator.clipboard.writeText(document.getElementById('verify-url').value).then(()=>alert('✅ Copied!'));}
     </script>
 </body>
 </html>
