@@ -3,509 +3,568 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMHS Certificate Verification</title>
+    <title>Certificate Verification - LUMHS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a472a;
+            --primary-light: #2d5a3f;
+            --gold: #c5a35a;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
         }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
             min-height: 100vh;
-            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 550px;
             width: 100%;
+        }
+
+        .verify-card {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
             overflow: hidden;
         }
 
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        .card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
         }
 
-        .logo {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 0 auto 15px;
+        .card-header img {
+            height: 60px;
+            margin-bottom: 10px;
         }
 
-        .header h1 {
-            font-size: 28px;
+        .card-header h1 {
+            font-size: 18px;
             margin-bottom: 5px;
         }
 
-        .header p {
-            font-size: 14px;
+        .card-header p {
+            font-size: 12px;
             opacity: 0.9;
         }
 
-        .content {
-            padding: 40px;
+        .card-body {
+            padding: 30px;
+        }
+
+        /* Search Section */
+        .search-section {
+            margin-bottom: 25px;
+        }
+
+        .search-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-align: center;
         }
 
         .search-box {
-            margin-bottom: 30px;
-        }
-
-        .search-box h2 {
-            color: #2a5298;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-
-        .search-form {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
         }
 
-        .search-form input {
+        .search-box input {
             flex: 1;
-            min-width: 250px;
             padding: 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: monospace;
+            text-transform: uppercase;
         }
 
-        .search-form input:focus {
+        .search-box input:focus {
+            border-color: var(--primary);
             outline: none;
-            border-color: #2a5298;
         }
 
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .search-box button {
+            padding: 15px 25px;
+            background: var(--primary);
             color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        .search-box button:hover {
+            background: var(--primary-light);
         }
 
-        .result-box {
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .scan-note {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
-            padding: 30px;
-            margin-top: 20px;
         }
 
-        .result-box.hidden {
+        /* Result Section */
+        #result-section {
             display: none;
         }
 
-        .verification-badge {
-            display: inline-flex;
+        .result-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 15px 25px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .result-icon.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+            border: 3px solid var(--success);
+        }
+
+        .result-icon.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
+            border: 3px solid var(--danger);
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .result-title.success { color: var(--success); }
+        .result-title.error { color: var(--danger); }
+
+        .result-message {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
             margin-bottom: 20px;
         }
 
-        .verification-badge.verified {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #28a745;
-        }
-
-        .verification-badge.not-found {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #dc3545;
-        }
-
-        .verification-badge svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .cert-info {
-            background: white;
-            border-radius: 8px;
-            padding: 25px;
-            margin-top: 20px;
-        }
-
-        .cert-info-row {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            gap: 15px;
-            padding: 12px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .cert-info-row:last-child {
-            border-bottom: none;
-        }
-
-        .cert-info-label {
-            font-weight: bold;
-            color: #2a5298;
-        }
-
-        .cert-info-value {
-            color: #333;
-        }
-
-        .qr-section {
+        .cert-id-box {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
             text-align: center;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px dashed #dee2e6;
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
         }
 
-        .qr-section h3 {
-            color: #2a5298;
-            margin-bottom: 15px;
-        }
-
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto;
+        .cert-qr-display {
+            text-align: center;
+            margin-bottom: 20px;
             padding: 15px;
-            background: white;
-            border: 2px solid #dee2e6;
+            background: #f8f9fa;
             border-radius: 10px;
         }
 
-        .qr-code img {
-            width: 100%;
-            height: 100%;
-        }
-
-        .qr-id {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #666;
-            font-weight: bold;
-        }
-
-        .alert {
-            padding: 15px 20px;
+        .cert-qr-display .qr-box {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+            border: 2px solid #ddd;
             border-radius: 8px;
-            margin-bottom: 20px;
+        }
+
+        .cert-qr-display p {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .details-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
             font-size: 14px;
         }
 
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .detail-row:last-child {
+            border-bottom: none;
         }
 
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .detail-label {
+            color: #6c757d;
+            font-weight: 600;
         }
 
-        @media (max-width: 768px) {
-            .content {
-                padding: 20px;
-            }
-
-            .search-form {
-                flex-direction: column;
-            }
-
-            .search-form input,
-            .btn {
-                width: 100%;
-            }
-
-            .cert-info-row {
-                grid-template-columns: 1fr;
-                gap: 5px;
-            }
+        .detail-value {
+            color: #212529;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
         }
 
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+
+        .verified-stamp {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-radius: 10px;
+            border: 2px solid var(--success);
+        }
+
+        .verified-stamp .stamp-text {
+            color: var(--success);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .verified-stamp .stamp-date {
+            color: #155724;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .btn-search-again {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .card-footer {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .card-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Loading */
         .loading {
             text-align: center;
             padding: 40px;
-            color: #666;
         }
 
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #dee2e6;
-            border-top-color: #2a5298;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 10px;
+            margin: 0 auto 15px;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            .card-body { padding: 20px; }
+            .search-box { flex-direction: column; }
+            .search-box button { width: 100%; }
+            .detail-row { flex-direction: column; gap: 5px; }
+            .detail-value { text-align: left; max-width: 100%; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS Logo" class="logo">
-            <h1>Certificate Verification Portal</h1>
-            <p>Biomedical Engineering Research & Maintenance Department</p>
-            <p>Liaquat University of Medical & Health Sciences, Jamshoro</p>
-        </div>
-
-        <div class="content">
-            <div class="search-box">
-                <h2>🔍 Verify Certificate</h2>
-                <p style="color: #666; margin-bottom: 15px;">Enter the Certificate ID to verify authenticity</p>
-                
-                <form class="search-form" id="searchForm">
-                    <input 
-                        type="text" 
-                        id="certificateId" 
-                        placeholder="Enter Certificate ID (e.g., LUMHS-1234567890)" 
-                        required
-                    >
-                    <button type="submit" class="btn btn-primary">Verify</button>
-                </form>
+        <div class="verify-card">
+            <div class="card-header">
+                <img src="https://admission.lumhs.edu.pk/pg/Content/images/logo/logo.png" alt="LUMHS" onerror="this.style.display='none'">
+                <h1>LIAQUAT UNIVERSITY OF MEDICAL & HEALTH SCIENCES</h1>
+                <p>Certificate Verification Portal</p>
             </div>
 
-            <div id="alertBox"></div>
-            <div id="resultBox" class="result-box hidden"></div>
+            <div class="card-body">
+                <!-- Search Section -->
+                <div id="search-section">
+                    <div class="search-section">
+                        <h3>🔍 Enter Certificate ID to Verify</h3>
+                        <div class="search-box">
+                            <input type="text" id="cert-id-input" placeholder="e.g. LUMHS-BME-2026-0001" 
+                                   onkeypress="if(event.key==='Enter') verifyCertificate()">
+                            <button onclick="verifyCertificate()">Verify</button>
+                        </div>
+                    </div>
+
+                    <div class="divider"><span>OR</span></div>
+
+                    <div class="scan-note">
+                        📱 Scan the QR code on the certificate<br>
+                        <small>The page will automatically verify</small>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loading-section" style="display:none;">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Verifying certificate...</p>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div id="result-section">
+                    <div id="result-content"></div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                Certificate Verification System | <a href="https://lumhs.edu.pk" target="_blank">LUMHS Jamshoro</a>
+            </div>
         </div>
     </div>
 
     <script>
-        // HARDCODED GOOGLE SHEETS CONFIGURATION
-        const GOOGLE_SHEETS_CONFIG = {
-            sheetId: '1WFXN5lXBDc3aR-ZJm4iT_PO-MHZRMK3Z',
-            webAppUrl: 'https://script.google.com/macros/s/AKfycbzfL77PdfKkkzK4-B9s6KRPmtWyN3qX9qLW97fB7crlgeCy47YOH0tM59yMOx3cYNBW/exec'
-        };
+        const STORAGE_KEY = 'lumhs_certs';
 
-        // Check for QR code scan (URL parameter)
-        window.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if certificate ID is in URL
             const urlParams = new URLSearchParams(window.location.search);
-            const certId = urlParams.get('id') || urlParams.get('verify');
+            const certId = urlParams.get('id');
             
             if (certId) {
-                document.getElementById('certificateId').value = certId;
-                verifyCertificate(certId);
+                document.getElementById('cert-id-input').value = certId;
+                setTimeout(verifyCertificate, 500);
             }
         });
 
-        // Form submission
-        document.getElementById('searchForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const certId = document.getElementById('certificateId').value.trim();
-            verifyCertificate(certId);
-        });
-
-        // Verify Certificate Function
-        async function verifyCertificate(certId) {
-            const resultBox = document.getElementById('resultBox');
-            const alertBox = document.getElementById('alertBox');
+        function verifyCertificate() {
+            const certId = document.getElementById('cert-id-input').value.trim().toUpperCase();
             
+            if (!certId) {
+                alert('Please enter a Certificate ID');
+                return;
+            }
+
             // Show loading
-            resultBox.classList.remove('hidden');
-            resultBox.innerHTML = '<div class="loading">Verifying certificate...</div>';
-            alertBox.innerHTML = '';
+            document.getElementById('search-section').style.display = 'none';
+            document.getElementById('loading-section').style.display = 'block';
+            document.getElementById('result-section').style.display = 'none';
 
-            try {
-                // First check localStorage
-                const localCerts = localStorage.getItem('certificates');
-                let certificate = null;
-
-                if (localCerts) {
-                    const certs = JSON.parse(localCerts);
-                    certificate = certs.find(c => c.id === certId);
-                }
-
-                // If not found locally, try Google Sheets
-                if (!certificate) {
-                    const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl + '?action=getById&id=' + encodeURIComponent(certId), {
-                        method: 'GET',
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success && result.data) {
-                        certificate = result.data;
-                        
-                        // Mark as verified in Google Sheets
-                        await markAsVerified(certId);
-                    }
-                }
-
-                if (certificate) {
-                    displayCertificate(certificate);
-                } else {
-                    displayNotFound();
-                }
-
-            } catch (error) {
-                console.error('Verification error:', error);
-                alertBox.innerHTML = '<div class="alert alert-error">⚠️ Error connecting to verification server. Please try again.</div>';
-                resultBox.classList.add('hidden');
-            }
+            // Simulate verification delay
+            setTimeout(() => {
+                const result = lookupCertificate(certId);
+                showResult(result, certId);
+            }, 1500);
         }
 
-        // Mark Certificate as Verified
-        async function markAsVerified(certId) {
-            try {
-                await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'markVerified',
-                        id: certId
-                    })
-                });
-                console.log('Marked as verified in Google Sheets');
-            } catch (error) {
-                console.error('Error marking as verified:', error);
-            }
-        }
-
-        // Display Certificate
-        function displayCertificate(cert) {
-            const resultBox = document.getElementById('resultBox');
-            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${cert.id}`;
+        function lookupCertificate(certId) {
+            // Get certificates from localStorage
+            const certs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const cert = certs.find(c => c.id.toUpperCase() === certId.toUpperCase());
             
-            const html = `
-                <div class="verification-badge verified">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    ✓ Certificate Verified
-                </div>
+            if (cert) {
+                // Update status to Verified
+                const index = certs.findIndex(c => c.id.toUpperCase() === certId.toUpperCase());
+                if (index !== -1 && certs[index].status !== 'Verified') {
+                    certs[index].status = 'Verified';
+                    certs[index].verifiedAt = new Date().toISOString();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(certs));
+                }
+                return { found: true, data: certs[index] || cert };
+            }
+            
+            return { found: false };
+        }
 
-                <div class="cert-info">
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Certificate ID:</div>
-                        <div class="cert-info-value">${cert.id}</div>
+        function showResult(result, certId) {
+            document.getElementById('loading-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+
+            const content = document.getElementById('result-content');
+
+            if (result.found) {
+                const cert = result.data;
+                const fromDate = new Date(cert.fromDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                const toDate = new Date(cert.toDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                const issueDate = new Date(cert.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                content.innerHTML = `
+                    <div class="result-icon success">✓</div>
+                    <h2 class="result-title success">Certificate Verified</h2>
+                    <p class="result-message">This certificate is authentic and valid.</p>
+                    
+                    <div class="cert-id-box">${cert.id}</div>
+                    
+                    <div class="cert-qr-display">
+                        <div class="qr-box" id="result-qr"></div>
+                        <p>Unique Certificate QR Code</p>
                     </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Name:</div>
-                        <div class="cert-info-value">${cert.name}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">CNIC / Roll Number:</div>
-                        <div class="cert-info-value">${cert.cnic}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Certificate Type:</div>
-                        <div class="cert-info-value">${cert.type}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Course / Program:</div>
-                        <div class="cert-info-value">${cert.course}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">From Date:</div>
-                        <div class="cert-info-value">${formatDate(cert.fromDate)}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">To Date:</div>
-                        <div class="cert-info-value">${formatDate(cert.toDate)}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Duration:</div>
-                        <div class="cert-info-value">${cert.duration}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Issue Date:</div>
-                        <div class="cert-info-value">${formatDate(cert.issueDate)}</div>
-                    </div>
-                    <div class="cert-info-row">
-                        <div class="cert-info-label">Status:</div>
-                        <div class="cert-info-value">
-                            <span style="background: #d4edda; color: #155724; padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold;">
-                                ${cert.status || 'Active'}
-                            </span>
+                    
+                    <div class="details-card">
+                        <div class="detail-row">
+                            <span class="detail-label">Name</span>
+                            <span class="detail-value"><strong>${cert.name}</strong></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">CNIC/Roll No</span>
+                            <span class="detail-value">${cert.cnic}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Certificate Type</span>
+                            <span class="detail-value">${cert.type}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Course/Program</span>
+                            <span class="detail-value">${cert.course}</span>
+                        </div>
+                        ${cert.duration ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Duration</span>
+                            <span class="detail-value">${cert.duration}</span>
+                        </div>
+                        ` : ''}
+                        <div class="detail-row">
+                            <span class="detail-label">Period</span>
+                            <span class="detail-value">${fromDate} - ${toDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Issue Date</span>
+                            <span class="detail-value">${issueDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value"><span class="badge badge-success">✓ VERIFIED</span></span>
                         </div>
                     </div>
-                </div>
-
-                <div class="qr-section">
-                    <h3>Certificate QR Code</h3>
-                    <div class="qr-code">
-                        <img src="${qrCodeUrl}" alt="QR Code">
+                    
+                    <div class="verified-stamp">
+                        <div class="stamp-text">✓ VERIFIED</div>
+                        <div class="stamp-date">Verified on ${new Date().toLocaleString()}</div>
                     </div>
-                    <div class="qr-id">${cert.id}</div>
-                    <p style="color: #666; font-size: 14px; margin-top: 10px;">Scan this code to verify again</p>
-                </div>
-            `;
-            
-            resultBox.innerHTML = html;
-        }
+                    
+                    <button class="btn-search-again" onclick="searchAgain()">🔍 Verify Another Certificate</button>
+                `;
 
-        // Display Not Found
-        function displayNotFound() {
-            const resultBox = document.getElementById('resultBox');
-            
-            const html = `
-                <div class="verification-badge not-found">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    ✗ Certificate Not Found
-                </div>
+                // Generate QR code for result
+                setTimeout(() => {
+                    const qrContainer = document.getElementById('result-qr');
+                    if (qrContainer) {
+                        new QRCode(qrContainer, {
+                            text: window.location.href.split('?')[0] + '?id=' + cert.id,
+                            width: 80,
+                            height: 80,
+                            colorDark: '#1a472a',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.L
+                        });
+                    }
+                }, 100);
 
-                <div class="cert-info">
-                    <p style="text-align: center; color: #721c24; font-size: 16px; padding: 20px;">
-                        The certificate ID you entered could not be found in our database.
-                        Please check the ID and try again.
-                    </p>
-                    <p style="text-align: center; color: #666; font-size: 14px; margin-top: 15px;">
+            } else {
+                content.innerHTML = `
+                    <div class="result-icon error">✗</div>
+                    <h2 class="result-title error">Certificate Not Found</h2>
+                    <p class="result-message">No certificate found with the provided ID. Please check and try again.</p>
+                    
+                    <div class="cert-id-box" style="background: linear-gradient(135deg, #dc3545, #c82333);">${certId}</div>
+                    
+                    <div class="details-card">
+                        <div class="detail-row">
+                            <span class="detail-label">Searched ID</span>
+                            <span class="detail-value">${certId}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value"><span class="badge" style="background:#f8d7da;color:#721c24;">NOT FOUND</span></span>
+                        </div>
+                    </div>
+                    
+                    <p style="text-align:center;color:#666;font-size:13px;margin-top:20px;">
                         If you believe this is an error, please contact:<br>
                         <strong>Biomedical Engineering R&M Department</strong><br>
                         LUMHS Jamshoro
                     </p>
-                </div>
-            `;
-            
-            resultBox.innerHTML = html;
+                    
+                    <button class="btn-search-again" onclick="searchAgain()">🔍 Try Again</button>
+                `;
+            }
         }
 
-        // Format Date
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
+        function searchAgain() {
+            document.getElementById('search-section').style.display = 'block';
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('cert-id-input').value = '';
+            document.getElementById('cert-id-input').focus();
+            
+            // Clear URL params
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
     </script>
 </body>
